@@ -1,0 +1,65 @@
+.pr_settings {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding-bottom: 3rem;
+}
+
+.pr_settings__header h1 {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.pr_settings__header p {
+    color: var(--color-text-muted);
+}
+
+
+.pr_settings__card {
+    background: #fff;
+    border-radius: 1.25rem;
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.pr_settings__form {
+    display: grid;
+    gap: 1rem;
+}
+
+.pr_settings__form_group label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.35rem;
+}
+
+.pr_settings__input {
+    width: 100%;
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: 0.85rem;
+    font-size: 0.95rem;
+}
+
+.pr_settings__input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.pr_settings__actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.pr_settings__cta {
+    background: var(--color-primary);
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+}

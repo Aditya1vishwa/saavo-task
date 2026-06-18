@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Booking confirmed</title>
+  <style>
+    body { margin:0; padding:0; background:#f0f9ff; font-family: 'Segoe UI', Arial, sans-serif; }
+    .container { max-width:600px; margin:40px auto; background:#fff; border-radius:16px; box-shadow:0 4px 24px rgba(14,165,233,0.08); overflow:hidden; }
+    .header { background: linear-gradient(135deg, #004bd6 0%, #0f72ff 100%); padding:32px; text-align:center; }
+    .header h1 { color:#fff; margin:0; font-size:22px; font-weight:700; }
+    .body { padding:32px; color:#0f172a; }
+    .lead { font-size:16px; color:#334155; line-height:1.6; }
+    .ticket { background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:20px 24px; margin:24px 0; }
+    .row { display:flex; justify-content:space-between; padding:6px 0; font-size:14px; color:#334155; }
+    .row strong { color:#0f172a; }
+    .code { font-size:20px; font-weight:800; color:#004bd6; letter-spacing:1px; }
+    .footer { text-align:center; padding:20px 24px; border-top:1px solid #e2e8f0; color:#94a3b8; font-size:13px; }
+    .logo { font-size:20px; font-weight:800; color:#004bd6; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Your booking is confirmed 🎉</h1>
+    </div>
+    <div class="body">
+      <p class="lead">Hi <strong>{{name}}</strong>,</p>
+      <p class="lead">Thanks for booking with EventNest. Your tickets are confirmed — details are below.</p>
+
+      <div class="ticket">
+        <div class="row"><span>Booking reference</span><span class="code">{{bookingCode}}</span></div>
+        <div class="row"><span>Seats</span><strong>{{seats}}</strong></div>
+        <div class="row"><span>Amount paid</span><strong>₹{{amount}}</strong></div>
+      </div>
+
+      <p style="color:#64748b;font-size:13px;">Please carry this booking reference (or your ticket) to the venue. See you at the event!</p>
+    </div>
+    <div class="footer">
+      <div class="logo">EventNest</div>
+      <p style="margin:8px 0 0;">Event Booking Platform · &copy; 2026 EventNest</p>
+    </div>
+  </div>
+</body>
+</html>

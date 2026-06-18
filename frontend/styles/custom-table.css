@@ -1,0 +1,105 @@
+.custom-table-container {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--color-border);
+    overflow: hidden;
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #94a3b8 #e2e8f0;
+}
+
+.table-wrapper::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+}
+
+.table-wrapper::-webkit-scrollbar-track {
+    background: #e2e8f0;
+    border-radius: 999px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 999px;
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.custom-table th,
+.custom-table td {
+    padding: var(--space-lg);
+    color: var(--color-text);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.custom-table th {
+    background-color: var(--color-white);
+    color: var(--color-text-muted);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.custom-table tr:hover td {
+    background-color: rgb(245, 252, 255);
+}
+
+.custom-table .no-data {
+    text-align: center;
+    padding: var(--space-3xl);
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
+.pagination {
+    display: flex;
+    justify-content: end;
+    gap: 10px;
+    align-items: center;
+    padding: var(--space-lg);
+    background-color: var(--color-surface);
+}
+
+.page-info {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+}
+
+.page-btn {
+    padding: var(--space-sm) var(--space-xl);
+    border: 1px solid var(--color-border);
+    background-color: var(--color-surface);
+    color: var(--color-text);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    transition: all var(--transition);
+}
+
+.page-btn:not(:disabled):hover {
+    background-color: var(--color-bg);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

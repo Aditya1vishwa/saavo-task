@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+Allow: /signup
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /settings
+Disallow: /credits
+Disallow: /help
+Disallow: /interview/
+Disallow: /admin/
+Disallow: /recruiter/
+Disallow: /user-interview/
+Disallow: /user-interviews
+Disallow: /job-interviews
+Disallow: /login
+Disallow: /forget
+Disallow: /reset
+
+Sitemap: https://EventNestai.com/sitemap.xml
