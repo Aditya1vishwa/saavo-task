@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router';
 import useUserStore from './store/useUserStore';
 import { apiCall } from './apiConfig/apiCall';
-import Cookies from 'js-cookie';
 // routes that should be treated as authentication screens
 const AUTH_PAGES = ['/login', '/signup', '/forget', '/reset'];
 // routes that are public and should not trigger an auth API check
@@ -29,13 +28,9 @@ const AuthLayout = () => {
     const checkAuth = async ({ silent = false } = {}) => {
         try {
             if (!silent) await UStore('loading', true);
-            const token = Cookies.get('accessToken');
-            if (!token) {
-                await UStore('user', null);
-                await UStore('isAuthenticated', false);
-                if (!silent) await UStore('loading', false);
-                return { ok: false, user: null };
-            }
+            // The accessToken cookie is httpOnly (not readable by JS), so we can't
+            // gate on it client-side. Always ask the server — the browser sends the
+            // cookie automatically (credentials: include). 401 → not authenticated.
             const response = await apiCall({ url: '/auth/me' });
 
             if (response?.success) {

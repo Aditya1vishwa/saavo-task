@@ -1,6 +1,8 @@
 import UserModel from "../db/mongodb/models/user.model.js";
 import KeyValueModel from "../db/mongodb/models/keyvalue.model.js";
 import HelpTicketModel from "../db/mongodb/models/helpticket.model.js";
+import EventModel from "../db/mongodb/models/event.model.js";
+import BookingModel from "../db/mongodb/models/booking.model.js";
 import notificationHelper from "../helpers/notification.helper.js";
 
 const toPositiveInt = (value, fallback = 10) => {
@@ -43,30 +45,53 @@ const getDashboardStats = async (req, res, next) => {
     try {
         const [
             totalUsers,
+            totalOrganizers,
+            totalEvents,
+            publishedEvents,
             totalOpenHelpTickets,
-            latestUsers,
-            latestHelpTickets,
+            revenueAgg,
+            bookingsByStatus,
+            latestBookings,
         ] = await Promise.all([
             UserModel.countDocuments({ role: { $ne: "admin" }, status: { $ne: "deleted" } }),
+            UserModel.countDocuments({ role: "organizer", status: { $ne: "deleted" } }),
+            EventModel.countDocuments({}),
+            EventModel.countDocuments({ status: "published" }),
             HelpTicketModel.countDocuments({ status: "open" }),
-            UserModel.find({ role: { $ne: "admin" }, status: { $ne: "deleted" } })
+            BookingModel.aggregate([
+                { $match: { status: "confirmed" } },
+                { $group: { _id: null, revenue: { $sum: "$totalAmount" }, count: { $sum: 1 } } },
+            ]),
+            BookingModel.aggregate([
+                { $group: { _id: "$status", count: { $sum: 1 } } },
+            ]),
+            BookingModel.find({})
                 .sort({ createdAt: -1 })
-                .limit(5)
-                .select("name email status role userType createdAt"),
-            HelpTicketModel.find({})
-                .sort({ createdAt: -1 })
-                .limit(5)
+                .limit(8)
+                .populate("eventId", "title")
                 .populate("userId", "name email")
-                .select("subject status createdAt userId"),
+                .select("bookingCode status totalAmount quantity createdAt eventId userId"),
         ]);
+
+        const revenue = revenueAgg[0]?.revenue || 0;
+        const confirmedBookings = revenueAgg[0]?.count || 0;
+        const bookingStatusMap = bookingsByStatus.reduce((acc, b) => ({ ...acc, [b._id]: b.count }), {});
+        const totalBookings = Object.values(bookingStatusMap).reduce((a, b) => a + b, 0);
 
         return res.status(200).json({
             success: true,
             data: {
                 totalUsers,
+                totalOrganizers,
+                totalEvents,
+                publishedEvents,
                 totalOpenHelpTickets,
-                latestUsers,
-                latestHelpTickets,
+                revenue,
+                confirmedBookings,
+                totalBookings,
+                cancelledBookings: bookingStatusMap.cancelled || 0,
+                pendingBookings: bookingStatusMap.pending || 0,
+                latestBookings,
             },
         });
     } catch (error) {
@@ -143,7 +168,7 @@ const updateUser = async (req, res, next) => {
         const user = await UserModel.findOneAndUpdate(
             { _id: id, role: { $ne: "admin" }, status: { $ne: "deleted" } },
             { $set: updatePayload },
-            { new: true }
+            { returnDocument: "after" }
         ).select("name email phone status role userType createdAt");
 
         if (!user) {
@@ -163,7 +188,7 @@ const deleteUser = async (req, res, next) => {
         const user = await UserModel.findOneAndUpdate(
             { _id: id, role: { $ne: "admin" }, status: { $ne: "deleted" } },
             { $set: { status: "deleted" } },
-            { new: true }
+            { returnDocument: "after" }
         ).select("_id");
 
         if (!user) {
@@ -269,7 +294,7 @@ const updateKeyValue = async (req, res, next) => {
             updatePayload.value = parseKeyValueInput({ valueType: effectiveType, valueRaw: effectiveValue });
         }
 
-        const item = await KeyValueModel.findByIdAndUpdate(id, { $set: updatePayload }, { new: true });
+        const item = await KeyValueModel.findByIdAndUpdate(id, { $set: updatePayload }, { returnDocument: "after" });
         if (!item) {
             return res.status(404).json({ success: false, message: "Key-value not found" });
         }
@@ -352,7 +377,7 @@ const answerHelpTicket = async (req, res, next) => {
                     answeredAt: new Date(),
                 },
             },
-            { new: true }
+            { returnDocument: "after" }
         ).populate("userId", "_id");
 
         if (!ticket) {

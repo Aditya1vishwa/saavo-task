@@ -34,7 +34,7 @@ const getCachedOrFetch = async (key, endpoint) => {
             await LocationCache.findOneAndUpdate(
                 { key },
                 { key, data },
-                { upsert: true, new: true, setDefaultsOnInsert: true }
+                { upsert: true, returnDocument: "after", setDefaultsOnInsert: true }
             );
         }
         

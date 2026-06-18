@@ -2,10 +2,12 @@ import { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import Modal from "../../components/Modal";
 import SelectInput from "../../components/common/SelectInput";
+import LocationPicker from "../../components/common/LocationPicker";
+import FullScreenLoader from "../../components/common/FullScreenLoader";
 import { venuesApi } from "../../api";
 import "../../../styles/events.css";
 
-const emptyVenue = { name: "", city: "", state: "", address: "", layoutType: "seated", capacity: 0 };
+const emptyVenue = { name: "", country: "India", state: "", city: "", address: "", layoutType: "seated", capacity: 0 };
 
 // Build seat docs from a simple grid generator: rows × seatsPerRow, labelled A1..
 const generateSeats = ({ section, rows, seatsPerRow, category }) => {
@@ -48,6 +50,28 @@ const OrganizerVenues = () => {
         } else toast.error(res?.message || "Could not save venue");
     };
 
+    // Open the seat-layout modal, reconstructing editable blocks from saved seats.
+    const openLayout = async (v) => {
+        setLayoutFor(v);
+        setLayoutRows([{ section: "General", rows: 5, seatsPerRow: 10, category: "Regular" }]);
+        const res = await venuesApi.get(v._id);
+        const seats = res?.success ? (res.data.seats || []) : [];
+        if (!seats.length) return;
+        const bySection = {};
+        for (const s of seats) {
+            if (!bySection[s.section]) bySection[s.section] = { section: s.section, category: s.category, rows: new Set(), perRow: {} };
+            bySection[s.section].rows.add(s.row);
+            bySection[s.section].perRow[s.row] = (bySection[s.section].perRow[s.row] || 0) + 1;
+        }
+        const blocks = Object.values(bySection).map((b) => ({
+            section: b.section,
+            category: b.category || "Regular",
+            rows: b.rows.size || 1,
+            seatsPerRow: Math.max(...Object.values(b.perRow), 1),
+        }));
+        if (blocks.length) setLayoutRows(blocks);
+    };
+
     const remove = async (v) => {
         if (!window.confirm(`Delete venue "${v.name}"?`)) return;
         const res = await venuesApi.remove(v._id);
@@ -88,7 +112,7 @@ const OrganizerVenues = () => {
             </div>
 
             {loading ? (
-                <div className="ev_empty">Loading…</div>
+                <FullScreenLoader headingText="Loading venues…" />
             ) : venues.length === 0 ? (
                 <div className="ev_empty">No venues yet. Create your first one.</div>
             ) : (
@@ -101,7 +125,7 @@ const OrganizerVenues = () => {
                             </div>
                             <div className="ev_list_card__actions">
                                 {v.layoutType === "seated" && (
-                                    <button className="pr_btn_secondary" onClick={() => { setLayoutFor(v); setLayoutRows([{ section: "General", rows: 5, seatsPerRow: 10, category: "Regular" }]); }}>Seat layout</button>
+                                    <button className="pr_btn_secondary" onClick={() => openLayout(v)}>Seat layout</button>
                                 )}
                                 <button className="pr_btn_secondary" onClick={() => setForm(v)}>Edit</button>
                                 <button className="pr_btn_secondary ev_danger" onClick={() => remove(v)}>Delete</button>
@@ -127,10 +151,11 @@ const OrganizerVenues = () => {
                     <div className="pr_form_stack">
                         <label className="pr_label">Name</label>
                         <input className="pr_input" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-                        <label className="pr_label">City</label>
-                        <input className="pr_input" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
-                        <label className="pr_label">State</label>
-                        <input className="pr_input" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} />
+                        <label className="pr_label">Location</label>
+                        <LocationPicker
+                            value={{ country: form.country, state: form.state, city: form.city }}
+                            onChange={(loc) => setForm((f) => ({ ...f, ...loc }))}
+                        />
                         <label className="pr_label">Address</label>
                         <input className="pr_input" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
                         <label className="pr_label">Layout type</label>

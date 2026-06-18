@@ -1,28 +1,25 @@
 import { Link } from "react-router";
 import "../../styles/legal.css";
 
-const SUPPORT_EMAIL = "support@EventNestai.com";
+const SUPPORT_EMAIL = "support@eventnest.app";
 
 const TOC = [
     { id: "introduction", label: "Introduction" },
     { id: "eligibility", label: "Eligibility" },
     { id: "description", label: "Description of Services" },
     { id: "accounts", label: "User Accounts" },
-    { id: "conduct", label: "Acceptable Use" },
-    { id: "user-content", label: "User Content" },
-    { id: "ai-consent", label: "AI Processing & Recording Consent" },
-    { id: "ai-disclaimer", label: "AI Disclaimer" },
-    { id: "no-guarantee", label: "No Employment Guarantee" },
-    { id: "recruiter", label: "Recruiter & Organization Responsibilities" },
-    { id: "payments", label: "Subscription, Billing & Payments" },
+    { id: "booking", label: "Booking Policy" },
+    { id: "pricing", label: "Pricing & Payments" },
+    { id: "cancellation", label: "Cancellation Policy" },
     { id: "refunds", label: "Refund Policy" },
+    { id: "tickets", label: "Tickets & Entry" },
+    { id: "conduct", label: "User Responsibilities & Acceptable Use" },
+    { id: "organizers", label: "Organizer Responsibilities" },
     { id: "ip", label: "Intellectual Property" },
-    { id: "privacy", label: "Privacy" },
     { id: "warranties", label: "Disclaimer of Warranties" },
     { id: "liability", label: "Limitation of Liability" },
     { id: "indemnification", label: "Indemnification" },
     { id: "termination", label: "Suspension and Termination" },
-    { id: "force-majeure", label: "Force Majeure" },
     { id: "changes", label: "Changes to the Services and Terms" },
     { id: "governing", label: "Governing Law and Jurisdiction" },
     { id: "contact", label: "Contact Information" },
@@ -36,16 +33,16 @@ const SECTIONS = [
         content: (
             <>
                 <p className="legal_p">
-                    Welcome to EventNestAI (&ldquo;EventNestAI,&rdquo; &ldquo;EventNest,&rdquo; &ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;).
+                    Welcome to EventNest (&ldquo;EventNest,&rdquo; &ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;).
                 </p>
                 <p className="legal_p">
-                    These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of EventNestAI&rsquo;s website, applications, software, content, and related services (collectively, the &ldquo;Services&rdquo;).
+                    These Terms of Service (&ldquo;Terms&rdquo;) govern your access to and use of EventNest&rsquo;s website, applications, software, content, and related services (collectively, the &ldquo;Services&rdquo;), through which you can discover events and book tickets.
                 </p>
                 <p className="legal_p">
                     By creating an account, accessing, or using the Services, you agree to be legally bound by these Terms. If you do not agree with any part of these Terms, you must not access or use the Services.
                 </p>
                 <p className="legal_p">
-                    These Terms constitute a legally binding agreement between you and EventNestAI.
+                    These Terms constitute a legally binding agreement between you and EventNest.
                 </p>
             </>
         ),
@@ -57,17 +54,17 @@ const SECTIONS = [
         content: (
             <>
                 <p className="legal_p">
-                    To use the Services, you must be legally capable of entering into a binding agreement under applicable law.
+                    To use the Services and book tickets, you must be at least 18 years of age and legally capable of entering into a binding agreement under applicable law.
                 </p>
                 <p className="legal_p">By using the Services, you represent and warrant that:</p>
                 <ul className="legal_ul">
-                    <li>You are at least the minimum age required under applicable law.</li>
+                    <li>You are at least 18 years old.</li>
                     <li>You have the legal authority to enter into these Terms.</li>
-                    <li>All information you provide is accurate, current, and complete.</li>
-                    <li>You will comply with all applicable laws, regulations, and industry requirements while using the Services.</li>
+                    <li>All information you provide, including booking and payment details, is accurate, current, and complete.</li>
+                    <li>You will comply with all applicable laws, regulations, and venue or organizer requirements while using the Services.</li>
                 </ul>
                 <p className="legal_p">
-                    If you are using the Services on behalf of an organization, company, or employer, you represent that you have authority to bind that entity to these Terms.
+                    Certain events may impose additional age restrictions set by the organizer or venue, which you must also satisfy.
                 </p>
             </>
         ),
@@ -79,22 +76,18 @@ const SECTIONS = [
         content: (
             <>
                 <p className="legal_p">
-                    EventNestAI provides AI-powered interview preparation and career development tools, including but not limited to:
+                    EventNest is an online platform that connects users with event organizers, enabling users to discover events and purchase tickets. Our Services include, but are not limited to:
                 </p>
                 <ul className="legal_ul">
-                    <li>AI interview simulations</li>
-                    <li>Voice-based interview practice</li>
-                    <li>Communication and speaking assessments</li>
-                    <li>Resume analysis and improvement</li>
-                    <li>Career coaching assistance</li>
-                    <li>Interview performance feedback</li>
-                    <li>AI-generated reports and recommendations</li>
-                    <li>Skill development tools</li>
-                    <li>Job readiness assessments</li>
-                    <li>Related educational and productivity features</li>
+                    <li>Event discovery and browsing across categories, locations, and dates</li>
+                    <li>Online ticket booking and checkout</li>
+                    <li>Seat selection and reserved seating, where available</li>
+                    <li>Digital ticket delivery and order management</li>
+                    <li>Secure payment processing for bookings</li>
+                    <li>Booking history and account management tools</li>
                 </ul>
                 <p className="legal_p">
-                    We may modify, improve, suspend, replace, or discontinue any feature or functionality at any time without liability.
+                    EventNest acts as an intermediary booking platform. Events are organized and hosted by independent third-party organizers, who are responsible for the events themselves. We may modify, suspend, replace, or discontinue any feature or functionality at any time without liability.
                 </p>
             </>
         ),
@@ -106,209 +99,172 @@ const SECTIONS = [
         content: (
             <>
                 <p className="legal_p">
-                    You may be required to create an account to access certain Services.
+                    You may be required to create an account to book tickets and access certain Services.
                 </p>
                 <p className="legal_p">
-                    You are responsible for maintaining the confidentiality of your login credentials and for all activities that occur under your account.
+                    You are responsible for maintaining the confidentiality of your login credentials and for all activities that occur under your account, including all bookings made.
                 </p>
                 <p className="legal_p">
                     You agree to notify us immediately at <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: "var(--color-primary)", fontWeight: 600, textDecoration: "none" }}>{SUPPORT_EMAIL}</a> if you become aware of any unauthorized access, misuse, or security breach involving your account.
                 </p>
                 <p className="legal_p">
-                    EventNestAI is not responsible for losses arising from unauthorized use of your account caused by your failure to safeguard account credentials.
+                    EventNest is not responsible for losses arising from unauthorized use of your account caused by your failure to safeguard account credentials.
+                </p>
+            </>
+        ),
+    },
+    {
+        id: "booking",
+        icon: "5",
+        title: "Booking Policy",
+        content: (
+            <>
+                <p className="legal_p">
+                    When you select seats or tickets and proceed to checkout, those seats or tickets are temporarily held for you.
+                </p>
+                <ul className="legal_ul">
+                    <li>Seat and ticket holds expire automatically after five (5) minutes during checkout. If payment is not completed within this window, the held seats or tickets are released and made available to other users.</li>
+                    <li>A booking is confirmed only after your payment has been successfully processed and you receive a booking confirmation. Initiating a booking or holding seats does not by itself guarantee a confirmed reservation.</li>
+                    <li>Once confirmed, tickets are non-transferable unless the organizer or the applicable event listing expressly states otherwise.</li>
+                    <li>Availability is subject to real-time demand, and we do not guarantee that any particular event, seat, or ticket type will remain available until you complete checkout.</li>
+                </ul>
+                <p className="legal_p">
+                    EventNest reserves the right to cancel or refuse any booking that we reasonably believe to be fraudulent, erroneous, or in violation of these Terms.
+                </p>
+            </>
+        ),
+    },
+    {
+        id: "pricing",
+        icon: "6",
+        title: "Pricing & Payments",
+        content: (
+            <>
+                <p className="legal_p">
+                    Ticket prices are set by the respective event organizers and are displayed on the relevant event listing.
+                </p>
+                <ul className="legal_ul">
+                    <li>The total amount payable at checkout may include applicable taxes, convenience fees, booking fees, and other charges, which will be shown before you confirm your booking.</li>
+                    <li>All payments are processed securely through the platform&rsquo;s integrated payment gateway. You authorize us and our payment processors to charge the total amount to your selected payment method.</li>
+                    <li>You are responsible for ensuring that the payment information you provide is accurate and that you are authorized to use the chosen payment method.</li>
+                    <li>Prices and fees may change at any time before a booking is confirmed; the price applicable to your booking is the one displayed at the time of confirmed payment.</li>
+                </ul>
+                <p className="legal_p">
+                    If a payment fails, is reversed, or is charged back without valid cause, we may cancel the associated booking and tickets.
+                </p>
+            </>
+        ),
+    },
+    {
+        id: "cancellation",
+        icon: "7",
+        title: "Cancellation Policy",
+        content: (
+            <>
+                <p className="legal_p">
+                    Cancellation of confirmed bookings is governed by the cancellation policy displayed on the relevant event listing at the time of booking.
+                </p>
+                <ul className="legal_ul">
+                    <li>Where an event permits user cancellations, you may cancel a confirmed booking only within the cancellation window and subject to any conditions specified for that event.</li>
+                    <li>Some events are marked as non-cancellable, in which case bookings cannot be cancelled by the user once confirmed.</li>
+                    <li>Organizers may cancel, postpone, reschedule, or materially change an event (including changes to date, time, venue, or lineup). EventNest will use reasonable efforts to notify you of such changes using the contact details associated with your account.</li>
+                    <li>If an event is cancelled or materially changed by the organizer, your eligibility for a refund or an alternative is determined under the Refund Policy below.</li>
+                </ul>
+            </>
+        ),
+    },
+    {
+        id: "refunds",
+        icon: "8",
+        title: "Refund Policy",
+        content: (
+            <>
+                <p className="legal_p">
+                    Refunds are handled in accordance with this policy and the specific terms of each event.
+                </p>
+                <ul className="legal_ul">
+                    <li>If you cancel a booking within the applicable cancellation window for that event, you may be eligible for a refund, which may be subject to deductions for non-refundable convenience or booking fees as disclosed at checkout.</li>
+                    <li>If an organizer cancels an event, eligible bookings will generally be refunded. Where an event is rescheduled, your original ticket may remain valid for the new date, or a refund may be offered, depending on the organizer&rsquo;s decision.</li>
+                    <li>Approved refunds are processed to the original payment method. Refund processing timelines depend on your bank or payment provider and may typically take five (5) to fourteen (14) business days to reflect after the refund is initiated.</li>
+                    <li>Convenience fees, booking fees, and taxes may be non-refundable except where required by applicable law or expressly stated otherwise.</li>
+                </ul>
+                <p className="legal_p">
+                    For refund queries, contact us at <a href={`mailto:${SUPPORT_EMAIL}`} style={{ color: "var(--color-primary)", fontWeight: 600, textDecoration: "none" }}>{SUPPORT_EMAIL}</a>.
+                </p>
+            </>
+        ),
+    },
+    {
+        id: "tickets",
+        icon: "9",
+        title: "Tickets & Entry",
+        content: (
+            <>
+                <p className="legal_p">
+                    Once a booking is confirmed, your tickets are issued digitally and may be delivered as a QR code, a PDF ticket, or both, accessible through your account.
+                </p>
+                <ul className="legal_ul">
+                    <li>Each ticket is valid for a single entry. The QR code on a ticket can be scanned once for admission; duplicate or copied tickets bearing the same code will not be admitted.</li>
+                    <li>You may be required to carry a valid government-issued photo ID and present your digital ticket at the venue for verification.</li>
+                    <li>Re-entry to a venue after exiting may not be permitted and is subject to the rules set by the organizer or venue.</li>
+                    <li>You are responsible for keeping your ticket and its QR code confidential. Anyone who presents your ticket QR code may be granted entry, and we are not liable for entry obtained using a ticket you have shared or exposed.</li>
+                </ul>
+                <p className="legal_p">
+                    Admission remains subject to the organizer&rsquo;s and venue&rsquo;s terms, security checks, and applicable laws.
                 </p>
             </>
         ),
     },
     {
         id: "conduct",
-        icon: "5",
-        title: "Acceptable Use",
-        content: (
-            <>
-                <p className="legal_p">You agree to use the Services only for lawful purposes.</p>
-                <p className="legal_p">You must not:</p>
-                <ul className="legal_ul">
-                    <li>Violate any applicable law or regulation.</li>
-                    <li>Use the Services for fraudulent, deceptive, or misleading activities.</li>
-                    <li>Attempt to gain unauthorized access to systems, accounts, or data.</li>
-                    <li>Interfere with platform functionality or security.</li>
-                    <li>Upload malicious software, malware, viruses, or harmful code.</li>
-                    <li>Reverse engineer, copy, decompile, scrape, or attempt to extract source code or proprietary technology.</li>
-                    <li>Use automated tools to access the platform in an unauthorized manner.</li>
-                    <li>Upload content that is unlawful, defamatory, abusive, discriminatory, harmful, or infringes third-party rights.</li>
-                    <li>Circumvent platform limitations, security controls, or subscription restrictions.</li>
-                </ul>
-                <p className="legal_p">
-                    Violation of these Terms may result in suspension, termination, legal action, or all of the foregoing.
-                </p>
-            </>
-        ),
-    },
-    {
-        id: "user-content",
-        icon: "6",
-        title: "User Content",
-        content: (
-            <>
-                <p className="legal_p">
-                    You retain ownership of the content you upload to the Services, including resumes, interview responses, documents, recordings, and other materials (&ldquo;User Content&rdquo;).
-                </p>
-                <p className="legal_p">
-                    By uploading or submitting User Content, you grant EventNestAI a worldwide, non-exclusive, royalty-free license to host, store, process, analyze, reproduce, and use such content solely for the purpose of providing, maintaining, securing, improving, and operating the Services.
-                </p>
-                <p className="legal_p">You represent and warrant that:</p>
-                <ul className="legal_ul">
-                    <li>You own or have all necessary rights to upload the content.</li>
-                    <li>The content does not violate any law or third-party rights.</li>
-                    <li>The content does not contain unlawful, malicious, or infringing material.</li>
-                </ul>
-            </>
-        ),
-    },
-    {
-        id: "ai-consent",
-        icon: "7",
-        title: "AI Processing, Analysis, and Recording Consent",
-        content: (
-            <>
-                <p className="legal_p">
-                    EventNestAI uses artificial intelligence, machine learning technologies, and automated systems to provide interview coaching, communication analysis, resume feedback, assessments, and recommendations.
-                </p>
-                <p className="legal_p">By using the Services, you expressly acknowledge and agree that:</p>
-                <ul className="legal_ul">
-                    <li>Interview practice sessions may be recorded.</li>
-                    <li>Audio, video, text, and communication data may be collected and processed.</li>
-                    <li>Interviews conducted through EventNestAI may be recorded, analyzed, and processed using artificial intelligence technologies for evaluation, reporting, quality assurance, security, fraud prevention, research, and platform improvement purposes.</li>
-                    <li>AI systems may evaluate communication style, speaking patterns, response quality, confidence indicators, and other performance-related factors.</li>
-                    <li>AI-generated outputs are intended for informational, educational, and coaching purposes only.</li>
-                </ul>
-                <p className="legal_p">
-                    You consent to such processing as necessary for the operation of the Services.
-                </p>
-            </>
-        ),
-    },
-    {
-        id: "ai-disclaimer",
-        icon: "8",
-        title: "AI Disclaimer",
-        content: (
-            <>
-                <p className="legal_p">
-                    EventNestAI provides AI-generated suggestions, evaluations, recommendations, scores, insights, and feedback.
-                </p>
-                <p className="legal_p">You acknowledge and agree that:</p>
-                <ul className="legal_ul">
-                    <li>AI-generated content may contain inaccuracies, errors, omissions, or outdated information.</li>
-                    <li>AI-generated recommendations should not be considered professional, legal, employment, financial, or career advice.</li>
-                    <li>Results may vary between users and sessions.</li>
-                    <li>EventNestAI does not guarantee the accuracy, completeness, reliability, or suitability of AI-generated outputs.</li>
-                </ul>
-                <p className="legal_p">
-                    Users are solely responsible for evaluating and relying upon any recommendations provided by the platform.
-                </p>
-            </>
-        ),
-    },
-    {
-        id: "no-guarantee",
-        icon: "9",
-        title: "No Employment Guarantee",
-        content: (
-            <>
-                <p className="legal_p">EventNestAI is a preparation and educational platform.</p>
-                <p className="legal_p">We do not guarantee:</p>
-                <ul className="legal_ul">
-                    <li>Job interviews</li>
-                    <li>Job offers</li>
-                    <li>Employment opportunities</li>
-                    <li>Candidate selection</li>
-                    <li>Career advancement</li>
-                    <li>Hiring outcomes</li>
-                </ul>
-                <p className="legal_p">
-                    Success in interviews and employment decisions depends on numerous factors outside our control.
-                </p>
-            </>
-        ),
-    },
-    {
-        id: "recruiter",
         icon: "10",
-        title: "Recruiter and Organization Responsibilities",
+        title: "User Responsibilities & Acceptable Use",
         content: (
             <>
-                <p className="legal_p">
-                    Organizations, recruiters, and hiring teams remain solely responsible for:
-                </p>
+                <p className="legal_p">You agree to use the Services only for lawful purposes. You must not:</p>
                 <ul className="legal_ul">
-                    <li>Candidate evaluations</li>
-                    <li>Hiring decisions</li>
-                    <li>Employment decisions</li>
-                    <li>Interview configuration</li>
-                    <li>Candidate communication</li>
-                    <li>Compliance with labor laws</li>
-                    <li>Compliance with privacy and data protection laws</li>
-                    <li>Obtaining legally required candidate consent</li>
+                    <li>Make fraudulent, duplicate, or unauthorized bookings.</li>
+                    <li>Use stolen, invalid, or unauthorized payment information.</li>
+                    <li>Resell, scalp, or commercially redistribute tickets, or book tickets for the purpose of unauthorized resale.</li>
+                    <li>Use bots, scripts, or automated tools to book tickets or access the platform in an unauthorized manner.</li>
+                    <li>Attempt to gain unauthorized access to systems, accounts, or data, or interfere with platform functionality or security.</li>
+                    <li>Upload malicious software or harmful code, or circumvent platform limitations or security controls.</li>
+                    <li>Violate any applicable law, regulation, or the rules of an event or venue.</li>
                 </ul>
                 <p className="legal_p">
-                    EventNestAI does not participate in employment decisions and is not responsible for hiring outcomes.
+                    Violation of these Terms may result in cancellation of bookings without refund, suspension or termination of your account, and legal action.
                 </p>
             </>
         ),
     },
     {
-        id: "payments",
+        id: "organizers",
         icon: "11",
-        title: "Subscription Plans, Billing, and Payments",
+        title: "Organizer Responsibilities",
         content: (
             <>
                 <p className="legal_p">
-                    Certain features may require payment of subscription fees or one-time charges.
+                    Event organizers are independent third parties responsible for the events they list and remain solely responsible for:
                 </p>
-                <p className="legal_p">
-                    By purchasing a subscription, you authorize us and our payment processors to charge applicable fees using your selected payment method.
-                </p>
-                <p className="legal_p">Unless otherwise stated:</p>
                 <ul className="legal_ul">
-                    <li>Subscription plans automatically renew at the end of each billing cycle.</li>
-                    <li>Renewal charges will be billed using the payment method on file.</li>
-                    <li>You may cancel renewal at any time before the next billing period begins.</li>
-                    <li>Pricing may be updated at our discretion with reasonable notice where required by law.</li>
+                    <li>The accuracy of event details, including date, time, venue, lineup, pricing, and policies.</li>
+                    <li>Honoring valid tickets purchased through the Services and admitting ticket holders in accordance with the event terms.</li>
+                    <li>Conducting the event and complying with all applicable laws, permits, and safety requirements.</li>
                 </ul>
                 <p className="legal_p">
-                    Failure to pay fees may result in suspension or termination of access to paid Services.
-                </p>
-            </>
-        ),
-    },
-    {
-        id: "refunds",
-        icon: "12",
-        title: "Refund Policy",
-        content: (
-            <>
-                <p className="legal_p">
-                    Except where required by applicable law, all payments are non-refundable.
-                </p>
-                <p className="legal_p">
-                    If a refund policy is offered for a specific plan, product, promotion, or jurisdiction, eligibility requirements must be satisfied before a refund is approved.
-                </p>
-                <p className="legal_p">
-                    Refund requests for eligible purchases must generally be submitted within seven (7) days of purchase and may be denied where Services have already been substantially used or consumed.
+                    EventNest is not the organizer of events and is not responsible for the conduct, cancellation, or quality of any event, except as expressly stated in these Terms.
                 </p>
             </>
         ),
     },
     {
         id: "ip",
-        icon: "13",
+        icon: "12",
         title: "Intellectual Property",
         content: (
             <>
                 <p className="legal_p">
-                    All rights, title, and interest in and to the Services, including software, technology, algorithms, designs, trademarks, logos, branding, content, interfaces, documentation, and intellectual property rights, are owned by or licensed to EventNestAI.
+                    All rights, title, and interest in and to the Services, including software, technology, designs, trademarks, logos, branding, content, interfaces, and documentation, are owned by or licensed to EventNest.
                 </p>
                 <p className="legal_p">
                     Nothing in these Terms transfers ownership of any intellectual property to users.
@@ -320,23 +276,8 @@ const SECTIONS = [
         ),
     },
     {
-        id: "privacy",
-        icon: "14",
-        title: "Privacy",
-        content: (
-            <>
-                <p className="legal_p">
-                    Your use of the Services is also governed by our <Link to="/privacy" style={{ color: "var(--color-primary)", fontWeight: 600, textDecoration: "none" }}>Privacy Policy</Link>, which describes how we collect, process, store, and protect personal information.
-                </p>
-                <p className="legal_p">
-                    By using the Services, you acknowledge and agree to the practices described in the Privacy Policy.
-                </p>
-            </>
-        ),
-    },
-    {
         id: "warranties",
-        icon: "15",
+        icon: "13",
         title: "Disclaimer of Warranties",
         content: (
             <>
@@ -344,54 +285,51 @@ const SECTIONS = [
                     The Services are provided on an &ldquo;AS IS&rdquo; and &ldquo;AS AVAILABLE&rdquo; basis.
                 </div>
                 <p className="legal_p">
-                    To the maximum extent permitted by law, EventNestAI disclaims all warranties, whether express, implied, statutory, or otherwise, including warranties of merchantability, fitness for a particular purpose, non-infringement, accuracy, availability, reliability, and uninterrupted operation.
+                    To the maximum extent permitted by law, EventNest disclaims all warranties, whether express, implied, statutory, or otherwise, including warranties of merchantability, fitness for a particular purpose, non-infringement, accuracy, availability, reliability, and uninterrupted operation.
                 </p>
                 <p className="legal_p">
-                    We do not guarantee that the Services will be error-free, uninterrupted, secure, or suitable for your specific needs.
+                    We do not guarantee that the Services will be error-free, uninterrupted, or secure, nor do we warrant the quality, safety, or occurrence of any event listed on the platform.
                 </p>
             </>
         ),
     },
     {
         id: "liability",
-        icon: "16",
+        icon: "14",
         title: "Limitation of Liability",
         content: (
             <>
                 <p className="legal_p">
-                    To the fullest extent permitted by law, EventNestAI, its affiliates, directors, employees, partners, and licensors shall not be liable for:
+                    To the fullest extent permitted by law, EventNest, its affiliates, directors, employees, partners, and licensors shall not be liable for:
                 </p>
                 <ul className="legal_ul">
-                    <li>Employment or hiring outcomes</li>
-                    <li>Loss of revenue</li>
-                    <li>Loss of profits</li>
-                    <li>Loss of business opportunities</li>
-                    <li>Data loss</li>
-                    <li>Service interruptions</li>
-                    <li>AI-generated inaccuracies</li>
-                    <li>Reputational harm</li>
+                    <li>Cancellation, postponement, or changes to any event by an organizer</li>
+                    <li>The conduct, quality, or safety of any event or venue</li>
+                    <li>Loss of profits, revenue, or business opportunities</li>
+                    <li>Data loss or service interruptions</li>
+                    <li>Inability to attend an event for reasons outside our control</li>
                     <li>Indirect, incidental, special, consequential, or punitive damages</li>
                 </ul>
                 <p className="legal_p">
-                    Our total cumulative liability arising from or related to the Services shall not exceed the amount paid by you to EventNestAI during the twelve (12) months preceding the event giving rise to the claim.
+                    Our total cumulative liability arising from or related to the Services shall not exceed the total amount paid by you for the specific booking giving rise to the claim.
                 </p>
             </>
         ),
     },
     {
         id: "indemnification",
-        icon: "17",
+        icon: "15",
         title: "Indemnification",
         content: (
             <>
                 <p className="legal_p">
-                    You agree to defend, indemnify, and hold harmless EventNestAI and its affiliates, officers, employees, contractors, and partners from any claims, liabilities, damages, losses, costs, or expenses arising from:
+                    You agree to defend, indemnify, and hold harmless EventNest and its affiliates, officers, employees, contractors, and partners from any claims, liabilities, damages, losses, costs, or expenses arising from:
                 </p>
                 <ul className="legal_ul">
                     <li>Your use of the Services.</li>
                     <li>Your violation of these Terms.</li>
-                    <li>Your uploaded content.</li>
-                    <li>Your violation of applicable laws.</li>
+                    <li>Your bookings or payment activity.</li>
+                    <li>Your violation of applicable laws or any event or venue rules.</li>
                     <li>Your infringement of third-party rights.</li>
                 </ul>
             </>
@@ -399,7 +337,7 @@ const SECTIONS = [
     },
     {
         id: "termination",
-        icon: "18",
+        icon: "16",
         title: "Suspension and Termination",
         content: (
             <>
@@ -408,30 +346,20 @@ const SECTIONS = [
                 </p>
                 <ul className="legal_ul">
                     <li>You violate these Terms.</li>
+                    <li>Fraudulent, abusive, or scalping activity is detected.</li>
                     <li>Your activities create legal, security, or operational risks.</li>
-                    <li>Fraudulent or abusive conduct is detected.</li>
-                    <li>Payment obligations are not fulfilled.</li>
+                    <li>Payment obligations are not fulfilled or chargebacks are abused.</li>
                     <li>We are required to do so by law.</li>
                 </ul>
                 <p className="legal_p">
-                    Termination does not affect rights or obligations that accrued before termination.
+                    Termination does not affect rights or obligations that accrued before termination, including completed bookings.
                 </p>
             </>
         ),
     },
     {
-        id: "force-majeure",
-        icon: "19",
-        title: "Force Majeure",
-        content: (
-            <p className="legal_p">
-                EventNestAI shall not be liable for any delay or failure in performance resulting from events beyond our reasonable control, including natural disasters, internet failures, cyberattacks, governmental actions, labor disputes, power outages, or failures of third-party service providers.
-            </p>
-        ),
-    },
-    {
         id: "changes",
-        icon: "20",
+        icon: "17",
         title: "Changes to the Services and Terms",
         content: (
             <>
@@ -449,7 +377,7 @@ const SECTIONS = [
     },
     {
         id: "governing",
-        icon: "21",
+        icon: "18",
         title: "Governing Law and Jurisdiction",
         content: (
             <>
@@ -457,19 +385,19 @@ const SECTIONS = [
                     These Terms shall be governed by and interpreted in accordance with the laws of India, without regard to conflict of law principles.
                 </p>
                 <p className="legal_p">
-                    Any dispute arising out of or relating to these Terms or the Services shall be subject to the exclusive jurisdiction of the courts located in Pune, Maharashtra, India.
+                    Any dispute arising out of or relating to these Terms or the Services shall be subject to the exclusive jurisdiction of the competent courts located in India.
                 </p>
             </>
         ),
     },
     {
         id: "contact",
-        icon: "22",
+        icon: "19",
         title: "Contact Information",
         content: (
             <div className="legal_contact_box">
-                <p>If you have questions regarding these Terms, legal notices, privacy matters, or support requests, please contact:</p>
-                <p><strong>EventNestAI</strong></p>
+                <p>If you have questions regarding these Terms, bookings, refunds, or support requests, please contact:</p>
+                <p><strong>EventNest</strong></p>
                 <p>Email: <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a></p>
             </div>
         ),
@@ -483,7 +411,7 @@ const TermsAndConditions = () => {
             <nav className="legal_nav" aria-label="Legal navigation">
                 <div className="legal_nav__inner">
                     <Link to="/" className="legal_nav__brand">
-                                        <img src={"logo.png"} alt="" width="130" className="ov_brand__icon" />       
+                                        <img src={"logo.png"} alt="" width="130" className="ov_brand__icon" />
                     </Link>
                     <Link to="/" className="legal_nav__back">
                     Back to Home
@@ -496,7 +424,7 @@ const TermsAndConditions = () => {
                 <div className="legal_hero__inner">
                     <span className="legal_hero__tag">Legal</span>
                     <h1 className="legal_hero__h1">Terms of Service</h1>
-                    <p className="legal_hero__meta">Effective date: April 12, 2026 &nbsp;·&nbsp; Last updated: April 12, 2026</p>
+                    <p className="legal_hero__meta">Effective date: June 18, 2026 &nbsp;·&nbsp; Last updated: June 18, 2026</p>
                 </div>
             </div>
 

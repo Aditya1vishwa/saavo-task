@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import FullScreenLoader from "../../components/common/FullScreenLoader";
 import { eventsApi, bookingsApi } from "../../api";
 import useUserStore from "../../store/useUserStore";
 import { formatDate, formatMoney, bannerSrc, statusBadgeClass } from "../../utils/format";
@@ -48,7 +49,7 @@ const Dashboard = () => {
             </div>
 
             {loading ? (
-                <div className="ev_empty">Loading…</div>
+                <FullScreenLoader headingText="Loading…" />
             ) : (
                 <>
                     <section className="ev_dash__section">

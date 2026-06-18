@@ -21,7 +21,13 @@ const bookingSchema = new Schema(
             required: true,
             index: true,
         },
-        // Denormalized seat snapshot so a booking is readable without joins.
+        // "seated" → seats[] holds assigned seats; "general" → items[] holds GA line items.
+        type: {
+            type: String,
+            enum: ["seated", "general"],
+            default: "seated",
+        },
+        // Denormalized seat snapshot so a booking is readable without joins (seated).
         seats: {
             type: [
                 {
@@ -29,6 +35,18 @@ const bookingSchema = new Schema(
                     seatNumber: String,
                     category: String,
                     price: Number,
+                },
+            ],
+            default: [],
+        },
+        // General-admission line items (ticket type + quantity).
+        items: {
+            type: [
+                {
+                    ticketTypeId: { type: Schema.Types.ObjectId, ref: "event_ticket_types" },
+                    name: String,
+                    price: Number,
+                    quantity: Number,
                 },
             ],
             default: [],

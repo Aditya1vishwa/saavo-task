@@ -3,6 +3,9 @@ import EventTicketTypeModel from "../db/mongodb/models/eventTicketType.model.js"
 import EventSeatModel from "../db/mongodb/models/eventSeat.model.js";
 import VenueModel from "../db/mongodb/models/venue.model.js";
 import VenueSeatModel from "../db/mongodb/models/venueSeat.model.js";
+import TicketModel from "../db/mongodb/models/ticket.model.js";
+import BookingModel from "../db/mongodb/models/booking.model.js";
+import uploadHelper from "../helpers/Upload.js";
 
 const toPositiveInt = (value, fallback = 10) => {
     const n = Number.parseInt(value, 10);
@@ -268,8 +271,32 @@ const getMyEvent = async (req, res, next) => {
         if (!event) {
             return res.status(404).json({ success: false, message: "Event not found" });
         }
-        const ticketTypes = await EventTicketTypeModel.find({ eventId: event._id });
-        return res.status(200).json({ success: true, data: { event, ticketTypes } });
+        const [ticketTypes, revenueAgg, seatCounts] = await Promise.all([
+            EventTicketTypeModel.find({ eventId: event._id }),
+            BookingModel.aggregate([
+                { $match: { eventId: event._id, status: "confirmed" } },
+                { $group: { _id: null, revenue: { $sum: "$totalAmount" }, tickets: { $sum: "$quantity" }, count: { $sum: 1 } } },
+            ]),
+            EventSeatModel.aggregate([
+                { $match: { eventId: event._id } },
+                { $group: { _id: "$status", count: { $sum: 1 } } },
+            ]),
+        ]);
+
+        const stats = {
+            revenue: revenueAgg[0]?.revenue || 0,
+            ticketsSold: revenueAgg[0]?.tickets || 0,
+            bookings: revenueAgg[0]?.count || 0,
+        };
+        const seatMap = seatCounts.reduce((acc, s) => ({ ...acc, [s._id]: s.count }), {});
+        const seatSummary = {
+            total: Object.values(seatMap).reduce((a, b) => a + b, 0),
+            booked: seatMap.booked || 0,
+            locked: seatMap.locked || 0,
+            available: seatMap.available || 0,
+        };
+
+        return res.status(200).json({ success: true, data: { event, ticketTypes, stats, seatSummary } });
     } catch (error) {
         next(error);
     }
@@ -291,6 +318,165 @@ const deleteEvent = async (req, res, next) => {
             EventModel.deleteOne({ _id: event._id }),
         ]);
         return res.status(200).json({ success: true, message: "Event deleted" });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Aggregate revenue + counts across all of the organizer's events (admin: all).
+const getOrganizerSummary = async (req, res, next) => {
+    try {
+        const filter = isAdmin(req) ? {} : { organizerId: req.user._id };
+        const events = await EventModel.find(filter).select("_id status");
+        const ids = events.map((e) => e._id);
+
+        const revenueAgg = await BookingModel.aggregate([
+            { $match: { eventId: { $in: ids }, status: "confirmed" } },
+            { $group: { _id: null, revenue: { $sum: "$totalAmount" }, tickets: { $sum: "$quantity" }, count: { $sum: 1 } } },
+        ]);
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                totalEvents: events.length,
+                published: events.filter((e) => e.status === "published").length,
+                drafts: events.filter((e) => e.status === "draft").length,
+                revenue: revenueAgg[0]?.revenue || 0,
+                ticketsSold: revenueAgg[0]?.tickets || 0,
+                bookings: revenueAgg[0]?.count || 0,
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Paginated bookings for one of the organizer's events.
+const getEventBookings = async (req, res, next) => {
+    try {
+        const event = await EventModel.findOne(ownerFilter(req, { _id: req.params.id })).select("_id");
+        if (!event) {
+            return res.status(404).json({ success: false, message: "Event not found" });
+        }
+        const page = toPositiveInt(req.query.page, 1);
+        const limit = toPositiveInt(req.query.limit, 10);
+        const skip = (page - 1) * limit;
+
+        const query = { eventId: event._id };
+        if (req.query.status) query.status = req.query.status;
+
+        const [bookings, total] = await Promise.all([
+            BookingModel.find(query)
+                .sort({ createdAt: -1 })
+                .skip(skip)
+                .limit(limit)
+                .populate("userId", "name email")
+                .select("bookingCode status totalAmount quantity type seats items createdAt userId"),
+            BookingModel.countDocuments(query),
+        ]);
+
+        return res.status(200).json({
+            success: true,
+            data: { bookings, page, limit, total, totalPages: Math.ceil(total / limit) },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Organizer seat map (any status) showing which seats are booked/locked/available.
+const getManageSeatMap = async (req, res, next) => {
+    try {
+        const event = await EventModel.findOne(ownerFilter(req, { _id: req.params.id })).select("_id seatsGenerated");
+        if (!event) {
+            return res.status(404).json({ success: false, message: "Event not found" });
+        }
+        if (!event.seatsGenerated) {
+            return res.status(200).json({ success: true, data: { seatsGenerated: false, sections: [] } });
+        }
+
+        const seats = await EventSeatModel.find({ eventId: event._id })
+            .select("section row seatNumber category price status")
+            .sort({ section: 1, row: 1, seatNumber: 1 });
+
+        const sectionsMap = new Map();
+        for (const s of seats) {
+            if (!sectionsMap.has(s.section)) sectionsMap.set(s.section, []);
+            sectionsMap.get(s.section).push(s);
+        }
+        const sections = [...sectionsMap.entries()].map(([name, list]) => ({ name, seats: list }));
+
+        return res.status(200).json({
+            success: true,
+            data: {
+                seatsGenerated: true,
+                total: seats.length,
+                booked: seats.filter((s) => s.status === "booked").length,
+                locked: seats.filter((s) => s.status === "locked").length,
+                available: seats.filter((s) => s.status === "available").length,
+                sections,
+            },
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Upload an event banner image; returns the public URL to store on the event.
+const uploadBanner = async (req, res, next) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: "No image uploaded (field 'banner')" });
+        }
+        const temp = uploadHelper.getTempObject(req.file);
+        const finalPath = `events/${req.user._id}-${temp.tempName}`;
+        const result = await uploadHelper.uploadFile({
+            tempPath: temp.tempPath,
+            finalPath,
+            contentType: req.file.mimetype,
+        });
+        return res.status(201).json({ success: true, data: { url: result.fileUrl }, message: "Banner uploaded" });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Organizer/admin ticket check-in: validate a ticket code for an event.
+const checkInTicket = async (req, res, next) => {
+    try {
+        const { ticketCode } = req.body || {};
+        if (!ticketCode || !String(ticketCode).trim()) {
+            return res.status(400).json({ success: false, message: "ticketCode is required" });
+        }
+
+        const event = await EventModel.findOne(ownerFilter(req, { _id: req.params.id })).select("_id title");
+        if (!event) {
+            return res.status(404).json({ success: false, message: "Event not found" });
+        }
+
+        const ticket = await TicketModel.findOne({
+            ticketCode: String(ticketCode).trim().toUpperCase(),
+            eventId: event._id,
+        });
+        if (!ticket) {
+            return res.status(404).json({ success: false, message: "Ticket not found for this event" });
+        }
+        if (ticket.status === "cancelled") {
+            return res.status(409).json({ success: false, message: "This ticket was cancelled" });
+        }
+        if (ticket.status === "used") {
+            return res.status(409).json({
+                success: false,
+                message: `Already checked in${ticket.checkedInAt ? ` at ${new Date(ticket.checkedInAt).toLocaleString("en-IN")}` : ""}`,
+                data: { ticket },
+            });
+        }
+
+        ticket.status = "used";
+        ticket.checkedInAt = new Date();
+        await ticket.save();
+
+        return res.status(200).json({ success: true, data: { ticket }, message: "Checked in successfully" });
     } catch (error) {
         next(error);
     }
@@ -403,11 +589,16 @@ const eventController = {
         createEvent,
         generateEventSeats,
         publishEvent,
+        uploadBanner,
+        checkInTicket,
     },
     get: {
         discoverEvents,
         listMyEvents,
         getMyEvent,
+        getOrganizerSummary,
+        getEventBookings,
+        getManageSeatMap,
         getPublicEvent,
         getEventSeatMap,
     },

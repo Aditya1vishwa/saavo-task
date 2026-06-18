@@ -71,11 +71,16 @@ const login = asyncHandler(async (req, res) => {
 });
 
 const signup = asyncHandler(async (req, res) => {
-    const { name, email, password, phone, userType } = req.body;
+    const { name, email, password, phone, role: requestedRole } = req.body;
 
     if (!name || !email || !password) {
         throw new ApiError(400, "Name, email, and password are required");
     }
+
+    // Self-signup may only choose attendee or organizer (never admin).
+    const isOrganizer = requestedRole === "organizer";
+    const role = isOrganizer ? "organizer" : "user";
+    const userType = isOrganizer ? "organizer" : "attendee";
 
     if (!passwordRegex.test(password)) {
         throw new ApiError(400, "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
@@ -95,7 +100,8 @@ const signup = asyncHandler(async (req, res) => {
         email,
         password: hashedPassword,
         phone,
-        userType: userType || "attendee",
+        role,
+        userType,
         emailVerificationToken: otp,
         emailVerificationTokenExpiry: expiry
     });

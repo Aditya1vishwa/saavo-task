@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Link } from "react-router";
+import FullScreenLoader from "../../components/common/FullScreenLoader";
 import { bookingsApi } from "../../api";
 import { formatDate, formatMoney, statusBadgeClass } from "../../utils/format";
 import "../../../styles/events.css";
@@ -34,7 +35,7 @@ const MyBookings = () => {
             </div>
 
             {loading ? (
-                <div className="ev_empty">Loading…</div>
+                <FullScreenLoader headingText="Loading bookings…" />
             ) : bookings.length === 0 ? (
                 <div className="ev_empty">No bookings yet. <Link to="/events">Find an event</Link></div>
             ) : (

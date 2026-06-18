@@ -1,63 +1,49 @@
 import { useEffect, useMemo, useState } from "react";
 import { apiCall } from "../../apiConfig/apiCall";
 import svg from "../../assets/svg";
+import CustomTable from "../../components/common/CustomTable";
+import FullScreenLoader from "../../components/common/FullScreenLoader";
+import { formatMoney, formatDate, statusBadgeClass } from "../../utils/format";
 
 const Dhasboard = () => {
-    const [stats, setStats] = useState({
-        totalUsers: 0,
-        totalInterviews: 0,
-        totalInterviewAttempts: 0,
-        totalOpenHelpTickets: 0,
-        latestUsers: [],
-        latestHelpTickets: [],
-    });
-
-    const cards = useMemo(
-        () => [
-            {
-                id: "users",
-                label: "Total Users",
-                value: stats.totalUsers,
-                icon: svg.users,
-            },
-            {
-                id: "interviews",
-                label: "Total Interviews",
-                value: stats.totalInterviews,
-                icon: svg.report,
-            },
-            {
-                id: "attempts",
-                label: "Interview Sessions",
-                value: stats.totalInterviewAttempts,
-                icon: svg.dashboard,
-            },
-            {
-                id: "help",
-                label: "Open Help Queries",
-                value: stats.totalOpenHelpTickets,
-                icon: svg.shield,
-            },
-        ],
-        [stats]
-    );
+    const [stats, setStats] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const loadData = async () => {
+        (async () => {
             const res = await apiCall({ url: "/admin/dashboard", method: "GET" });
-            if (res?.success) {
-                setStats(res?.data || {});
-            }
-        };
-        loadData();
+            if (res?.success) setStats(res.data || {});
+            setLoading(false);
+        })();
     }, []);
+
+    const cards = useMemo(() => stats ? [
+        { id: "revenue", label: "Revenue (confirmed)", value: formatMoney(stats.revenue), icon: svg.dashboard },
+        { id: "bookings", label: "Confirmed Bookings", value: stats.confirmedBookings ?? 0, icon: svg.report },
+        { id: "events", label: "Events (published)", value: `${stats.publishedEvents ?? 0}/${stats.totalEvents ?? 0}`, icon: svg.report },
+        { id: "users", label: "Users", value: stats.totalUsers ?? 0, icon: svg.users },
+        { id: "organizers", label: "Organizers", value: stats.totalOrganizers ?? 0, icon: svg.users },
+        { id: "help", label: "Open Help Queries", value: stats.totalOpenHelpTickets ?? 0, icon: svg.shield },
+    ] : [], [stats]);
+
+    const columns = useMemo(() => [
+        { label: "Booking", key: "bookingCode" },
+        { label: "Event", key: "event", render: (r) => r.eventId?.title || "—" },
+        { label: "User", key: "user", render: (r) => r.userId?.name || r.userId?.email || "—" },
+        { label: "Seats", key: "quantity" },
+        { label: "Amount", key: "amount", render: (r) => formatMoney(r.totalAmount) },
+        { label: "Status", key: "status", render: (r) => <span className={`pr_badge ${statusBadgeClass(r.status)}`}>{r.status}</span> },
+        { label: "Date", key: "date", render: (r) => formatDate(r.createdAt, false) },
+    ], []);
+
+    if (loading) return <FullScreenLoader headingText="Loading dashboard…" />;
 
     return (
         <div className="pr_dash">
             <div className="pr_dash__header">
                 <div>
                     <h1 className="pr_dash__title">Admin Dashboard</h1>
-                    <p className="pr_dash__subtitle">Track platform users, interviews, and support activity.</p>
+                    <p className="pr_dash__subtitle">Revenue, events, bookings and platform activity.</p>
                 </div>
             </div>
 
@@ -67,9 +53,7 @@ const Dhasboard = () => {
                     return (
                         <article className="pr_dash__stat_card" key={card.id}>
                             <div className="pr_dash__stat_top">
-                                <span className="pr_dash__stat_icon">
-                                    {Icon({ fill: "#2563eb", height: 20, width: 20 })}
-                                </span>
+                                <span className="pr_dash__stat_icon">{Icon({ fill: "#2563eb", height: 20, width: 20 })}</span>
                             </div>
                             <div className="pr_dash__stat_label">{card.label}</div>
                             <div className="pr_dash__stat_value">{card.value}</div>
@@ -78,43 +62,12 @@ const Dhasboard = () => {
                 })}
             </section>
 
-            <div className="pr_dash__grid">
-                <section className="pr_dash__panel">
-                    <div className="pr_dash__panel_header">
-                        <h2 className="pr_dash__panel_title">Recent Users</h2>
-                    </div>
-                    <div className="pr_dash__list">
-                        {(stats.latestUsers || []).map((item) => (
-                            <div className="pr_dash__list_item" key={item._id}>
-                                <div className="pr_dash__item_info">
-                                    <div className="pr_dash__item_title">{item.name}</div>
-                                    <div className="pr_dash__item_meta">{item.email}</div>
-                                </div>
-                                <div className="pr_dash__chip">{item.status}</div>
-                            </div>
-                        ))}
-                    </div>
-                </section>
-
-                <aside className="pr_dash__side">
-                    <section className="pr_dash__panel pr_dash__panel--compact">
-                        <div className="pr_dash__panel_header">
-                            <h2 className="pr_dash__panel_title">Recent Help Requests</h2>
-                        </div>
-                        <div className="pr_dash__activity_list">
-                            {(stats.latestHelpTickets || []).map((ticket) => (
-                                <div className="pr_dash__activity_item" key={ticket._id}>
-                                    <span className="pr_dash__activity_dot is-info" />
-                                    <div>
-                                        <div className="pr_dash__activity_title">{ticket.subject}</div>
-                                        <div className="pr_dash__activity_time">{ticket?.userId?.email || "Unknown user"}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
-                </aside>
-            </div>
+            <section className="pr_dash__panel" style={{ marginTop: 20 }}>
+                <div className="pr_dash__panel_header">
+                    <h2 className="pr_dash__panel_title">Recent bookings</h2>
+                </div>
+                <CustomTable data={stats?.latestBookings || []} columns={columns} currentPage={1} totalPages={1} onPageChange={() => {}} />
+            </section>
         </div>
     );
 };

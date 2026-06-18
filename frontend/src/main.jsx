@@ -37,6 +37,7 @@ const OrganizerDashboard = lazy(() => import('./pages/organizer/OrganizerDashboa
 const OrganizerEvents = lazy(() => import('./pages/organizer/OrganizerEvents'));
 const EventManage = lazy(() => import('./pages/organizer/EventManage'));
 const OrganizerVenues = lazy(() => import('./pages/organizer/OrganizerVenues'));
+const ScanTickets = lazy(() => import('./pages/organizer/ScanTickets'));
 
 // Admin
 const Dhasboard = lazy(() => import('./pages/admin/Dhasboard'));
@@ -90,6 +91,7 @@ const router = createBrowserRouter([
           { path: "organizer/events", element: <WithMeta title="My Events" noIndex Component={OrganizerEvents} /> },
           { path: "organizer/events/:id", element: <WithMeta title="Manage Event" noIndex Component={EventManage} /> },
           { path: "organizer/venues", element: <WithMeta title="Venues" noIndex Component={OrganizerVenues} /> },
+          { path: "organizer/scan", element: <WithMeta title="Scan Tickets" noIndex Component={ScanTickets} /> },
 
           // ── Admin ──
           { path: "admin/dashboard", element: <WithMeta title="Admin Dashboard" noIndex Component={Dhasboard} /> },

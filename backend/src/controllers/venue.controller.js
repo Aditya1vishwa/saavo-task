@@ -97,7 +97,7 @@ const updateVenue = async (req, res, next) => {
         const venue = await VenueModel.findOneAndUpdate(
             ownershipFilter(req, { _id: req.params.id }),
             { $set: update },
-            { new: true }
+            { returnDocument: "after" }
         );
         if (!venue) {
             return res.status(404).json({ success: false, message: "Venue not found" });

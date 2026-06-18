@@ -8,7 +8,8 @@
 > - ✅ Phase 3 cleanup · ✅ Workspace removed · ✅ Email → nodemailer-only · ✅ controller convention standardized · ✅ demo-user/admin seed.
 > - ✅ **Backend foundation:** roles (admin/organizer/attendee), all core models, Venue CRUD + seat layout, Event CRUD + ticket types + seat generation + publish + public discovery/detail/seat-map, Booking flow (lock → booking → **demo pay yes/no** → history/cancel), admin user mgmt (role editing).
 > - ✅ **Frontend (production UI):** landing page, public event discovery + detail w/ live seat map, attendee dashboard + bookings + demo checkout, organizer dashboard/events/venues/seat-layout/publish, admin users, role-based nav + routing + branding.
-> - 🔜 **Remaining:** Terms/Privacy content rewrites; general-admission (non-seated) booking path; admin analytics dashboard refresh; real payment provider (Razorpay) to replace demo; tickets/QR/PDF; email templates for cancellation/refund; validation/helmet/rate-limit; automated tests; DB-integration testing of all flows.
+> - ✅ **Added (2026-06-18 pm):** PDF+QR ticket system & download; admin analytics dashboard (revenue/bookings/events) w/ CustomTable; Terms & Privacy rewrites; helmet + auth rate-limit; booking-cancellation email; shared-component reuse (FullScreenLoader/CustomTable/Modal); demo organizer seed.
+> - 🔜 **Remaining:** real payment provider (Razorpay) to replace demo gateway; general-admission (non-seated) booking path; refund model + tracking (2.9) + real refunds; QR check-in endpoint (9.4); zod/joi request validation; automated tests (13.x); DB-integration testing of all flows.
 
 ---
 

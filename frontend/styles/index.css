@@ -176,7 +176,9 @@ input[type="checkbox"]:focus {
 .pr_btn_primary:hover {
   background-color: var(--color-primary-hover);
 }
-
+.pr_btn_primary.white:hover {
+  background: #f3f3ff;
+}
 .pr_btn_secondary {
   background-color: var(--color-secondary);
   color: white;
@@ -656,6 +658,7 @@ input[type="checkbox"]:focus {
   min-height: 100vh;
   position: relative;
   background: var(--color-bg);
+  overflow-x: hidden;
 }
 
 .pr_layout__main {
@@ -667,6 +670,7 @@ input[type="checkbox"]:focus {
 
 .pr_layout__content {
   padding: var(--space-2xl);
+  height: calc(100vh - 84px);
 }
 
 .pr_content_placeholder {
@@ -703,7 +707,17 @@ input[type="checkbox"]:focus {
   height: 100vh;
   transition: transform 240ms ease;
   z-index: 40;
-  overflow: auto;
+  /* overflow must stay visible so the absolutely-positioned open/close handle
+     (which sticks out at right:-16px) isn't clipped and doesn't spawn a
+     scrollbar. The menu list scrolls inside .pr_sidebar__section instead. */
+  overflow: visible;
+}
+
+.pr_sidebar__section {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .pr_sidebar__header {

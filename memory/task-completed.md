@@ -128,4 +128,42 @@
 - **Signup:** removed the "I am a" user-type field (job-seeker/recruiter) — not needed; everyone registers as attendee (backend default). Dropped react-select import, userType state/handler/payload; updated subtitle.
 - **Verification:** frontend `npm run build` ✓; grep confirms zero arrows/emoji and no dangling signup refs.
 
+### Tickets, admin analytics, legal pages, security, emails
+- **Date:** 2026-06-18
+- **Ticket system (9.x, 2.10):** `ticket.model.js`; `helpers/ticket.helper.js` (`issueTicketForBooking` idempotent + `streamTicketPdf` via `pdfkit` with embedded `qrcode` QR). Tickets auto-issued on demo-payment success; invalidated on cancel. New `GET /api/bookings/:id/ticket` streams a branded PDF e-ticket. Frontend: `downloadFile()` helper in `apiCall.js` + "Download ticket" button on BookingDetail. Deps added: `qrcode`, `pdfkit`.
+- **Admin analytics (11.x):** `getDashboardStats` expanded → revenue (confirmed), confirmed/total/cancelled/pending bookings, events (published/total), users, organizers, recent bookings. `pages/admin/Dhasboard.jsx` rebuilt: stat cards + recent-bookings **CustomTable** + **FullScreenLoader**.
+- **Legal (12.4, 12.5):** `TermsAndConditions.jsx` (19 sections: booking/pricing/cancellation/refund/tickets/entry/organizer responsibilities, India jurisdiction) and `PrivacyPolicy.jsx` (14 sections: data collection/payment/organizer sharing/cookies/security/retention/rights) rewritten for event booking; support email `support@eventnest.app`; structure/CSS preserved. (Done via 2 parallel agents.)
+- **Security (1.3 partial):** added `helmet` (CSP/CORP off — same server hosts SPA + cross-origin uploads) and `express-rate-limit` (auth endpoints: 50/15min). Deps: `helmet`, `express-rate-limit`.
+- **Emails (10.3):** `booking-cancellation.html` template + send on cancel (in-app notification already existed).
+- **Component reuse (per user):** swapped inline loaders for `FullScreenLoader` across BookingDetail, Checkout, EventManage, MyBookings, user Dashboard, OrganizerEvents/Venues, admin Dashboard; admin Dashboard + Users use `CustomTable`; modals already reuse `Modal`.
+- **Demo seed:** corrected linter-added demo organizer to valid enum (`role: organizer`, `userType: organizer`, `DEMO_ORGANIZER_EMAIL`) — prior `userType: "organiser"` would have failed schema validation and crashed boot.
+- **Verification:** backend `import('./src/app.js')` ✓; frontend `npm run build` ✓; legal pages grep-clean of interview branding.
+- **Still remaining:** real payment provider (Razorpay) to replace demo; general-admission (non-seated) booking; refund model/tracking (2.9) + Razorpay refunds; QR check-in endpoint (9.4); zod/joi request validation; automated tests (13.x); DB-integration testing.
+
+### General-admission booking, QR check-in, banner upload + sidebar fix
+- **Date:** 2026-06-18
+- **General-admission (non-seated) booking:** `booking.model` gained `type: seated|general` + `items[]`. New `POST /api/bookings/general` (`createGaBooking`) atomically claims `eventTicketType.availableQuantity` (rollback on shortfall, ≤10 tickets); failed/cancelled GA bookings restore inventory via `restoreGaInventory`. EventDetail renders quantity steppers for GA venues (vs seat map for seated); Checkout + BookingDetail show GA line items. API: `bookingsApi.createGeneral`.
+- **QR check-in:** `event.controller.checkInTicket` → `POST /api/events/manage/:id/check-in` (organizer/admin, ownership-scoped): validates a ticket code for the event, marks `valid → used` with `checkedInAt`, rejects cancelled/already-used. EventManage has a check-in panel (input code → valid/invalid result) for published events. API: `eventsApi.checkIn`.
+- **Event banner upload:** `event.controller.uploadBanner` → `POST /api/events/manage/upload-banner` (multer `uploadSingle("banner")` + `Upload.js` local/S3) returns the public URL. OrganizerEvents create modal has a file picker + preview (replaces the raw URL field). API: `eventsApi.uploadBanner`.
+- **CSS fix:** `.pr_sidebar` `overflow: auto → visible` (the absolutely-positioned `.pr_sidebar_handle` at `right:-16px` was clipped and spawning a scrollbar); added `.pr_sidebar__section { flex:1; min-height:0; overflow-y:auto }` so long menus scroll internally without affecting the handle. New `events.css` styles for GA steppers, banner upload, check-in panel.
+- **Verification:** backend `import('./src/app.js')` ✓; frontend `npm run build` ✓.
+
+### Location cascade selects, signup role choice, email-template audit
+- **Date:** 2026-06-18
+- **Location selects:** new `locationApi` (countries/states/cities) + `components/common/LocationPicker.jsx` — cascading Country → State → City react-selects backed by the existing `/api/location` endpoints (country-state-city API). Wired into the OrganizerVenues create/edit form (replaces free-text city/state/country; best-effort prefill on edit). `.ev_location_grid` responsive CSS added. NOTE: needs `COUNTRY_STATE_CITY_API_KEY` env set or the lists return empty. (EventsBrowse city filter left as free text — a cascade there would be overkill for discovery.)
+- **Signup role choice:** re-added a "Join as" selector (react-select via `SelectInput`) — Attendee or Organizer. Backend `signup` now accepts a sanitized `role` (attendee→`user`/attendee, organizer→`organizer`/organizer; never admin). Login + AuthLayout already route organizers to `/organizer/dashboard`; updated `login.jsx` redirect accordingly.
+- **Email templates:** audited all four (`email-verification`, `forgot-password`, `booking-confirmation`, `booking-cancellation`) — all EventNest-branded, zero PrepNinja/interview references, copy is event-appropriate (verification = "Welcome to EventNest").
+- **CSS:** fixed a linter-introduced malformed rule note (double-brace already corrected); location grid styles added.
+- **Verification:** backend `import('./src/app.js')` ✓; frontend `npm run build` ✓.
+
+### Organizer booking visibility, revenue, seat status + global QR scan
+- **Date:** 2026-06-18
+- **Organizer booking/revenue views (backend):** `getMyEvent` now returns `stats` (revenue, ticketsSold, bookings) + `seatSummary` (booked/locked/available/total). New endpoints: `GET /events/manage/:id/bookings` (paginated event bookings), `GET /events/manage/:id/seats` (organizer seat map, any status), `GET /events/manage/summary` (revenue/tickets/counts across the organizer's events; admin = all).
+- **EventManage UI:** stat cards (revenue received, tickets sold, confirmed bookings, seats booked), a **bookings CustomTable** (attendee, seats/tickets, qty, amount, status, date), and a read-only **seat-status grid** (available=green / booked=blue / held=amber with counts). New seat CSS `.seat--booked/.seat--locked/.seat--readonly`.
+- **OrganizerDashboard:** added Revenue received / Tickets sold / Bookings cards via `eventsApi.summary()`.
+- **Global ticket scanner (new):** `ticket.controller.js` + `ticket.route.js` → `POST /api/tickets/check-in` (organizer/admin): validates a ticket code **across all of the organizer's events**, marks it `used` (prevents re-scan), returns full details (event, attendee, seats/items, amount). New `pages/organizer/ScanTickets.jsx` using **`html5-qrcode`** (camera QR scan + manual code entry, 3s debounce, result card). Route `/organizer/scan` + sidebar "Scan Tickets" link. Per-event check-in in EventManage retained as a convenience.
+- **Deps:** frontend `html5-qrcode`.
+- **Verification:** backend `import('./src/app.js')` ✓; frontend `npm run build` ✓.
+- **Note:** browser camera requires HTTPS or localhost; manual code entry works everywhere.
+
 _(Further feature tasks will be appended below as they are completed.)_

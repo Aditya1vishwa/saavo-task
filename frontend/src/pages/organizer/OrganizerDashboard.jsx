@@ -2,23 +2,26 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { eventsApi, venuesApi } from "../../api";
 import useUserStore from "../../store/useUserStore";
-import { formatDate, statusBadgeClass } from "../../utils/format";
+import { formatDate, formatMoney, statusBadgeClass } from "../../utils/format";
 import "../../../styles/events.css";
 
 const OrganizerDashboard = () => {
     const { user } = useUserStore();
     const [events, setEvents] = useState([]);
     const [venueCount, setVenueCount] = useState(0);
+    const [summary, setSummary] = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         (async () => {
-            const [evRes, vRes] = await Promise.all([
+            const [evRes, vRes, sumRes] = await Promise.all([
                 eventsApi.listMine({ page: 1, limit: 50 }),
                 venuesApi.list({ page: 1, limit: 1 }),
+                eventsApi.summary(),
             ]);
             if (evRes?.success) setEvents(evRes.data.events || []);
             if (vRes?.success) setVenueCount(vRes.data.total || 0);
+            if (sumRes?.success) setSummary(sumRes.data);
             setLoading(false);
         })();
     }, []);
@@ -40,6 +43,9 @@ const OrganizerDashboard = () => {
             </div>
 
             <div className="ev_stat_grid">
+                <div className="ev_stat_card"><span>{formatMoney(summary?.revenue || 0)}</span><label>Revenue received</label></div>
+                <div className="ev_stat_card"><span>{summary?.ticketsSold || 0}</span><label>Tickets sold</label></div>
+                <div className="ev_stat_card"><span>{summary?.bookings || 0}</span><label>Bookings</label></div>
                 <div className="ev_stat_card"><span>{events.length}</span><label>Total events</label></div>
                 <div className="ev_stat_card"><span>{published}</span><label>Published</label></div>
                 <div className="ev_stat_card"><span>{drafts}</span><label>Drafts</label></div>

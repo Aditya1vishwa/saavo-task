@@ -50,6 +50,53 @@
 .ev_card__price { margin-top: 6px; font-weight: 700; color: #004bd6; }
 .ev_back_link { display: inline-flex; align-items: center; gap: 6px; }
 
+/* General-admission ticket steppers */
+.ev_ga_list { display: flex; flex-direction: column; gap: 12px; }
+.ev_ga_row { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; }
+.ev_ga_row__name { font-weight: 600; color: #0f172a; }
+.ev_ga_row__meta { font-size: 13px; color: #64748b; margin-top: 2px; }
+.ev_stepper { display: inline-flex; align-items: center; gap: 12px; }
+.ev_stepper button { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; font-size: 18px; line-height: 1; cursor: pointer; color: #0f172a; }
+.ev_stepper button:disabled { opacity: .4; cursor: not-allowed; }
+.ev_stepper span { min-width: 20px; text-align: center; font-weight: 700; }
+
+/* Location cascade selects */
+.ev_location_grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.ev_location_grid .pr_label { margin-bottom: 4px; display: block; }
+@media (max-width: 620px) { .ev_location_grid { grid-template-columns: 1fr; } }
+
+/* Banner upload */
+.ev_banner_upload { display: flex; flex-direction: column; gap: 10px; }
+.ev_banner_preview { width: 100%; max-height: 160px; object-fit: cover; border-radius: 10px; border: 1px solid #e2e8f0; }
+.ev_upload_btn { align-self: flex-start; cursor: pointer; }
+
+/* Ticket scanner page */
+.ev_scan { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+.ev_scan__cam { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; display: flex; flex-direction: column; gap: 14px; align-items: stretch; }
+.ev_scan__reader { width: 100%; min-height: 60px; border-radius: 12px; overflow: hidden; background: #0f172a; }
+.ev_scan__reader:empty { min-height: 0; }
+.ev_scan__manual { display: flex; gap: 10px; }
+.ev_scan__result { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px; }
+.ev_scan__result.is-ok { border-color: #86efac; box-shadow: 0 0 0 3px rgba(34,197,94,.12); }
+.ev_scan__result.is-err { border-color: #fca5a5; box-shadow: 0 0 0 3px rgba(239,68,68,.12); }
+.ev_scan__result_head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.ev_scan__result_icon { width: 38px; height: 38px; flex: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 800; color: #fff; }
+.ev_scan__result.is-ok .ev_scan__result_icon { background: #22c55e; }
+.ev_scan__result.is-err .ev_scan__result_icon { background: #ef4444; }
+.ev_scan__result_msg { font-size: 13px; color: #64748b; }
+.ev_scan__details { border-top: 1px dashed #e2e8f0; padding-top: 12px; }
+@media (max-width: 820px) { .ev_scan { grid-template-columns: 1fr; } }
+
+/* Check-in panel */
+.ev_checkin { margin-top: 24px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px 22px; }
+.ev_checkin h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-size: 16px; }
+.ev_checkin__form { display: flex; gap: 10px; margin-top: 10px; }
+.ev_checkin__form .pr_input { max-width: 320px; }
+.ev_checkin__result { margin-top: 14px; display: flex; flex-direction: column; gap: 2px; padding: 12px 16px; border-radius: 10px; font-size: 14px; }
+.ev_checkin__result.is-ok { background: #dcfce7; color: #166534; }
+.ev_checkin__result.is-err { background: #fee2e2; color: #991b1b; }
+.ev_checkin__result strong { font-size: 15px; }
+
 .ev_pagination { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 28px; color: #475569; font-size: 14px; }
 .ev_empty { padding: 48px 24px; text-align: center; color: #64748b; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 14px; }
 .ev_empty a { color: #004bd6; font-weight: 600; }
@@ -83,6 +130,14 @@
 .seat--available:hover { background: #d1fae5; }
 .seat--selected { background: #004bd6; border-color: #004bd6; color: #fff; }
 .seat--taken { background: #f1f5f9; border-color: #e2e8f0; color: #94a3b8; cursor: not-allowed; }
+.seat--booked { background: #dbeafe; border-color: #93c5fd; color: #1e40af; }
+.seat--locked { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
+.seat--readonly { cursor: default; }
+
+/* Organizer event manage extras */
+.ev_manage__stats { margin: 4px 0 20px; }
+.ev_seatstatus, .ev_bookings { margin-top: 24px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px 22px; }
+.ev_seatstatus h3, .ev_bookings h3 { margin: 0 0 6px; font-size: 16px; }
 
 /* Summary rail */
 .ev_summary_card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; position: sticky; top: 20px; }

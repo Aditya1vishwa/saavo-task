@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router";
 import toast from "react-hot-toast";
+import FullScreenLoader from "../../components/common/FullScreenLoader";
 import { bookingsApi } from "../../api";
 import { formatMoney, formatDate } from "../../utils/format";
 import "../../../styles/events.css";
@@ -37,7 +38,7 @@ const CheckoutPage = () => {
         }
     };
 
-    if (loading) return <div className="ev_empty">Loading checkout…</div>;
+    if (loading) return <FullScreenLoader headingText="Loading checkout…" />;
     if (!booking) return <div className="ev_empty">Booking not found.</div>;
 
     if (booking.status !== "pending") {
@@ -65,11 +66,15 @@ const CheckoutPage = () => {
                 )}
 
                 <div className="ev_checkout__seats">
-                    <div className="ev_checkout__seats_title">Seats</div>
+                    <div className="ev_checkout__seats_title">{booking.type === "general" ? "Tickets" : "Seats"}</div>
                     <ul>
-                        {booking.seats.map((s, i) => (
-                            <li key={i}><span>{s.seatNumber} <em>({s.category})</em></span><span>{formatMoney(s.price)}</span></li>
-                        ))}
+                        {booking.type === "general"
+                            ? (booking.items || []).map((it, i) => (
+                                <li key={i}><span>{it.name} <em>× {it.quantity}</em></span><span>{formatMoney(it.price * it.quantity)}</span></li>
+                            ))
+                            : booking.seats.map((s, i) => (
+                                <li key={i}><span>{s.seatNumber} <em>({s.category})</em></span><span>{formatMoney(s.price)}</span></li>
+                            ))}
                     </ul>
                 </div>
 

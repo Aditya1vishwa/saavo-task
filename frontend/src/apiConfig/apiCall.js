@@ -9,6 +9,30 @@ export const imgDomain =
     (isLocalhost ? "http://localhost:8002/uploads/" : `${window.location.origin}/uploads/`);
 import Cookies from "js-cookie";
 
+// Fetch a binary file (e.g. PDF ticket) with auth and trigger a browser download.
+export const downloadFile = async (url, filename = "download") => {
+    try {
+        const fullUrl = url.startsWith("/") ? apiDomain + url : url;
+        const token = Cookies.get("accessToken");
+        const headers = {};
+        if (token) headers.Authorization = token;
+        const response = await fetch(fullUrl, { method: "GET", headers, credentials: "include" });
+        if (!response.ok) return false;
+        const blob = await response.blob();
+        const objUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = objUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(objUrl);
+        return true;
+    } catch {
+        return false;
+    }
+};
+
 export const apiCall = async (
     {
         url,

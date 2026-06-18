@@ -4,7 +4,13 @@ import toast from 'react-hot-toast';
 import useUserStore from '../../store/useUserStore';
 import { apiCall } from '../../apiConfig/apiCall';
 import svg from '../../assets/svg';
+import SelectInput from '../../components/common/SelectInput';
 import AuthLeftPanel from '../../components/auth/AuthLeftPanel';
+
+const ROLE_OPTIONS = [
+    { value: 'user', label: 'Attendee — book and attend events' },
+    { value: 'organizer', label: 'Organizer — create and manage events' },
+];
 
 const Signup = () => {
     const [step, setStep] = useState(1);
@@ -13,6 +19,7 @@ const Signup = () => {
         email: '',
         password: '',
         confirmPassword: '',
+        role: 'user',
     });
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -90,6 +97,7 @@ const Signup = () => {
                     name: formData.name,
                     email: formData.email,
                     password: formData.password,
+                    role: formData.role,
                 },
             });
 
@@ -203,6 +211,15 @@ const Signup = () => {
                                         className="pr_input"
                                         placeholder="Enter your email"
                                         required
+                                    />
+                                </div>
+
+                                <div className="pr_form_group">
+                                    <label className="pr_label">Join as</label>
+                                    <SelectInput
+                                        options={ROLE_OPTIONS}
+                                        value={formData.role}
+                                        onChange={(v) => setFormData((f) => ({ ...f, role: v }))}
                                     />
                                 </div>
 

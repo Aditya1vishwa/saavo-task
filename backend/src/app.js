@@ -1,6 +1,8 @@
 import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
+import helmet from "helmet"
+import rateLimit from "express-rate-limit"
 import expressWinston from "express-winston";
 import winston from "winston";
 import fs from "fs";
@@ -29,6 +31,10 @@ const STATIC_COMPRESSIBLE_EXTENSIONS = new Set([
 ]);
 
 const app = express()
+
+// Security headers. CSP/CORP disabled because the same server also hosts the
+// SPA (inline styles, external fonts, TinyMCE) and serves cross-origin uploads.
+app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false }));
 
 const allowedOrigins = [
     "http://localhost:5173",
@@ -133,15 +139,26 @@ import locationRouter from "./routes/location.route.js";
 import venueRouter from "./routes/venue.route.js";
 import eventRouter from "./routes/event.route.js";
 import bookingRouter from "./routes/booking.route.js";
+import ticketRouter from "./routes/ticket.route.js";
+
+// Throttle auth endpoints (brute-force / signup-spam protection).
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 50,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { success: false, message: "Too many attempts. Please try again later." },
+});
 
 /// V1 Routes ////
-app.use("/api/auth", authRouter);
+app.use("/api/auth", authLimiter, authRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/user", userRouter);
 app.use("/api/location", locationRouter);
 app.use("/api/venues", venueRouter);
 app.use("/api/events", eventRouter);
 app.use("/api/bookings", bookingRouter);
+app.use("/api/tickets", ticketRouter);
 
 
 app.get(/^\/(?!api\/).*/, (req, res, next) => {

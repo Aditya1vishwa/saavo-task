@@ -1,11 +1,15 @@
 import crypto from "crypto";
 import EventModel from "../db/mongodb/models/event.model.js";
 import EventSeatModel from "../db/mongodb/models/eventSeat.model.js";
+import EventTicketTypeModel from "../db/mongodb/models/eventTicketType.model.js";
+import VenueModel from "../db/mongodb/models/venue.model.js";
 import SeatLockModel from "../db/mongodb/models/seatLock.model.js";
 import BookingModel from "../db/mongodb/models/booking.model.js";
 import PaymentModel from "../db/mongodb/models/payment.model.js";
 import notificationHelper from "../helpers/notification.helper.js";
 import emailHelper from "../helpers/email.helper.js";
+import ticketHelper from "../helpers/ticket.helper.js";
+import TicketModel from "../db/mongodb/models/ticket.model.js";
 
 const LOCK_TTL_MS = 5 * 60 * 1000; // 5 minutes
 
@@ -176,6 +180,104 @@ const createBooking = async (req, res, next) => {
     }
 };
 
+// ─── General-admission booking (no seat map) ─────────────────────────────────
+
+// Return reserved GA quantities to ticket-type inventory.
+const restoreGaInventory = async (booking) => {
+    for (const item of booking.items || []) {
+        await EventTicketTypeModel.updateOne(
+            { _id: item.ticketTypeId },
+            { $inc: { availableQuantity: item.quantity } }
+        );
+    }
+};
+
+const createGaBooking = async (req, res, next) => {
+    try {
+        const { eventId, items } = req.body || {};
+        if (!eventId || !Array.isArray(items) || !items.length) {
+            return res.status(400).json({ success: false, message: "eventId and items are required" });
+        }
+
+        const event = await EventModel.findOne({ _id: eventId, status: "published" }).select("_id venueId title");
+        if (!event) {
+            return res.status(404).json({ success: false, message: "Event not found or not published" });
+        }
+        const venue = await VenueModel.findById(event.venueId).select("layoutType");
+        if (venue?.layoutType !== "general") {
+            return res.status(400).json({ success: false, message: "This event uses assigned seating — select seats instead" });
+        }
+
+        // Normalize + validate requested quantities.
+        const requested = items
+            .map((i) => ({ ticketTypeId: i.ticketTypeId, quantity: Math.max(parseInt(i.quantity, 10) || 0, 0) }))
+            .filter((i) => i.ticketTypeId && i.quantity > 0);
+        if (!requested.length) {
+            return res.status(400).json({ success: false, message: "Select at least one ticket" });
+        }
+        const totalQty = requested.reduce((s, i) => s + i.quantity, 0);
+        if (totalQty > 10) {
+            return res.status(400).json({ success: false, message: "You can book at most 10 tickets" });
+        }
+
+        // Atomically claim inventory; roll back on any shortfall.
+        const claimed = [];
+        const lineItems = [];
+        let totalAmount = 0;
+        for (const r of requested) {
+            const tt = await EventTicketTypeModel.findOne({ _id: r.ticketTypeId, eventId: event._id });
+            if (!tt) {
+                for (const c of claimed) await EventTicketTypeModel.updateOne({ _id: c.ticketTypeId }, { $inc: { availableQuantity: c.quantity } });
+                return res.status(404).json({ success: false, message: "Ticket type not found" });
+            }
+            const result = await EventTicketTypeModel.updateOne(
+                { _id: tt._id, availableQuantity: { $gte: r.quantity } },
+                { $inc: { availableQuantity: -r.quantity } }
+            );
+            if (result.modifiedCount !== 1) {
+                for (const c of claimed) await EventTicketTypeModel.updateOne({ _id: c.ticketTypeId }, { $inc: { availableQuantity: c.quantity } });
+                return res.status(409).json({ success: false, message: `Not enough "${tt.name}" tickets available` });
+            }
+            claimed.push(r);
+            lineItems.push({ ticketTypeId: tt._id, name: tt.name, price: tt.price, quantity: r.quantity });
+            totalAmount += tt.price * r.quantity;
+        }
+
+        const booking = await BookingModel.create({
+            bookingCode: genBookingCode(),
+            userId: req.user._id,
+            eventId: event._id,
+            type: "general",
+            items: lineItems,
+            quantity: totalQty,
+            totalAmount,
+            currency: "INR",
+            status: "pending",
+        });
+
+        const payment = await PaymentModel.create({
+            bookingId: booking._id,
+            userId: req.user._id,
+            provider: "demo",
+            orderId: `DEMO-${booking.bookingCode}`,
+            amount: totalAmount,
+            currency: "INR",
+            status: "created",
+        });
+
+        booking.paymentId = payment._id;
+        await booking.save();
+
+        return res.status(201).json({
+            success: true,
+            data: { booking, payment: { _id: payment._id, amount: payment.amount, status: payment.status, provider: payment.provider } },
+            message: "Booking created. Complete payment to confirm.",
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // ─── DEMO payment ─────────────────────────────────────────────────────────────
 // Stand-in for a real gateway. Body: { success: true|false }.
 // success → confirm booking + book seats; failure → cancel booking + release seats.
@@ -204,12 +306,16 @@ const processDemoPayment = async (req, res, next) => {
             booking.status = "cancelled";
             booking.cancelledAt = new Date();
             await booking.save();
-            await EventSeatModel.updateMany(
-                { _id: { $in: seatIds } },
-                { $set: { status: "available", lockedBy: null, lockExpiresAt: null, bookingId: null } }
-            );
-            await SeatLockModel.updateOne({ seatIds: { $all: seatIds }, userId: req.user._id, status: "active" }, { $set: { status: "released" } });
-            return res.status(200).json({ success: false, data: { booking }, message: "Payment failed. Seats released." });
+            if (booking.type === "general") {
+                await restoreGaInventory(booking);
+            } else {
+                await EventSeatModel.updateMany(
+                    { _id: { $in: seatIds } },
+                    { $set: { status: "available", lockedBy: null, lockExpiresAt: null, bookingId: null } }
+                );
+                await SeatLockModel.updateOne({ seatIds: { $all: seatIds }, userId: req.user._id, status: "active" }, { $set: { status: "released" } });
+            }
+            return res.status(200).json({ success: false, data: { booking }, message: "Payment failed. Reservation released." });
         }
 
         // Successful demo payment → confirm booking, book seats.
@@ -229,6 +335,9 @@ const processDemoPayment = async (req, res, next) => {
             { $set: { status: "booked", lockExpiresAt: null } }
         );
         await SeatLockModel.updateOne({ seatIds: { $all: seatIds }, userId: req.user._id, status: "active" }, { $set: { status: "converted" } });
+
+        // Issue the ticket (idempotent; best-effort).
+        await ticketHelper.issueTicketForBooking(booking).catch(() => {});
 
         // Notify (best-effort; never block confirmation on these).
         notificationHelper.createNotification({
@@ -314,10 +423,17 @@ const cancelBooking = async (req, res, next) => {
         booking.cancelledAt = new Date();
         await booking.save();
 
-        await EventSeatModel.updateMany(
-            { _id: { $in: booking.seats.map((s) => s.eventSeatId) } },
-            { $set: { status: "available", lockedBy: null, lockExpiresAt: null, bookingId: null } }
-        );
+        if (booking.type === "general") {
+            await restoreGaInventory(booking);
+        } else {
+            await EventSeatModel.updateMany(
+                { _id: { $in: booking.seats.map((s) => s.eventSeatId) } },
+                { $set: { status: "available", lockedBy: null, lockExpiresAt: null, bookingId: null } }
+            );
+        }
+
+        // Invalidate the issued ticket.
+        await TicketModel.updateOne({ bookingId: booking._id }, { $set: { status: "cancelled" } });
 
         // Mark the demo payment refunded (real refund flow comes later).
         if (booking.paymentId) {
@@ -332,6 +448,17 @@ const cancelBooking = async (req, res, next) => {
             data: { bookingId: booking._id, bookingCode: booking.bookingCode },
         }).catch(() => {});
 
+        emailHelper.sendMail({
+            to: req.user.email,
+            subject: "Your booking has been cancelled",
+            templateName: "booking-cancellation",
+            data: {
+                name: req.user.name || "",
+                bookingCode: booking.bookingCode,
+                amount: booking.totalAmount,
+            },
+        }).catch(() => {});
+
         return res.status(200).json({ success: true, data: { booking }, message: "Booking cancelled" });
     } catch (error) {
         next(error);
@@ -339,16 +466,36 @@ const cancelBooking = async (req, res, next) => {
 };
 
 // Handlers grouped by HTTP method (see shared controller convention).
+// Download a PDF e-ticket (with QR) for a confirmed booking.
+const downloadTicket = async (req, res, next) => {
+    try {
+        const booking = await BookingModel.findOne({ _id: req.params.id, userId: req.user._id });
+        if (!booking) {
+            return res.status(404).json({ success: false, message: "Booking not found" });
+        }
+        if (booking.status !== "confirmed") {
+            return res.status(400).json({ success: false, message: "Ticket is available only for confirmed bookings" });
+        }
+        const ticket = await ticketHelper.issueTicketForBooking(booking);
+        const event = await EventModel.findById(booking.eventId).populate("venueId", "name").select("title startAt city venueId");
+        await ticketHelper.streamTicketPdf(res, { booking, event, ticket });
+    } catch (error) {
+        next(error);
+    }
+};
+
 const bookingController = {
     post: {
         lockSeats,
         createBooking,
+        createGaBooking,
         processDemoPayment,
         cancelBooking,
     },
     get: {
         listMyBookings,
         getBooking,
+        downloadTicket,
     },
     delete: {
         releaseLock,

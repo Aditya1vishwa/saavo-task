@@ -28,8 +28,13 @@ const seedDemoUsers = async () => {
             role: "user",
             userType: "attendee",
         },
+        {
+            name: "Demo Organizer",
+            email: (process.env.DEMO_ORGANIZER_EMAIL || "organizer@eventnest.app").toLowerCase(),
+            role: "organizer",
+            userType: "organizer",
+        },
     ];
-
     for (const demo of demos) {
         const exists = await UserModel.findOne({ email: demo.email }).select("_id");
         if (exists) continue;

@@ -2,7 +2,9 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router";
 import toast from "react-hot-toast";
 import svg from "../../assets/svg";
+import FullScreenLoader from "../../components/common/FullScreenLoader";
 import { bookingsApi } from "../../api";
+import { downloadFile } from "../../apiConfig/apiCall";
 import { formatDate, formatMoney, statusBadgeClass } from "../../utils/format";
 import "../../../styles/events.css";
 
@@ -34,7 +36,12 @@ const BookingDetail = () => {
         }
     };
 
-    if (loading) return <div className="ev_empty">Loading…</div>;
+    const downloadTicket = async () => {
+        const ok = await downloadFile(bookingsApi.ticketPath(id), `ticket-${booking.bookingCode}.pdf`);
+        if (!ok) toast.error("Could not download ticket");
+    };
+
+    if (loading) return <FullScreenLoader headingText="Loading booking…" />;
     if (!booking) return <div className="ev_empty">Booking not found.</div>;
 
     return (
@@ -59,11 +66,15 @@ const BookingDetail = () => {
                 )}
 
                 <div className="ev_checkout__seats">
-                    <div className="ev_checkout__seats_title">Seats</div>
+                    <div className="ev_checkout__seats_title">{booking.type === "general" ? "Tickets" : "Seats"}</div>
                     <ul>
-                        {booking.seats.map((s, i) => (
-                            <li key={i}><span>{s.seatNumber} <em>({s.category})</em></span><span>{formatMoney(s.price)}</span></li>
-                        ))}
+                        {booking.type === "general"
+                            ? (booking.items || []).map((it, i) => (
+                                <li key={i}><span>{it.name} <em>× {it.quantity}</em></span><span>{formatMoney(it.price * it.quantity)}</span></li>
+                            ))
+                            : booking.seats.map((s, i) => (
+                                <li key={i}><span>{s.seatNumber} <em>({s.category})</em></span><span>{formatMoney(s.price)}</span></li>
+                            ))}
                     </ul>
                 </div>
 
@@ -74,9 +85,14 @@ const BookingDetail = () => {
                         <Link className="pr_btn_primary pr_full_width" to={`/checkout/${booking._id}`}>Complete payment</Link>
                     )}
                     {booking.status === "confirmed" && (
-                        <button className="pr_btn_secondary pr_full_width" disabled={cancelling} onClick={cancel}>
-                            {cancelling ? "Cancelling…" : "Cancel booking"}
-                        </button>
+                        <>
+                            <button className="pr_btn_primary pr_full_width" onClick={downloadTicket}>
+                                {svg.ticket({ fill: "#fff", width: 18, height: 18 })} Download ticket
+                            </button>
+                            <button className="pr_btn_secondary pr_full_width" disabled={cancelling} onClick={cancel}>
+                                {cancelling ? "Cancelling…" : "Cancel booking"}
+                            </button>
+                        </>
                     )}
                     <Link className="pr_link_button ev_back_link" to="/user/bookings">{svg.back({ fill: "#004bd6", width: 16, height: 16 })} Back to my bookings</Link>
                 </div>

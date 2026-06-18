@@ -115,8 +115,8 @@ const Landing = () => {
                     <p>Create a free account and start booking in minutes.</p>
                 </div>
                 <div className="lp_cta__actions">
-                    <Link to="/signup" className="pr_btn_primary">Get started</Link>
-                    <Link to="/events" className="pr_btn_secondary">Browse events</Link>
+                    <Link to="/signup" className="pr_btn_primary white">Get started</Link>
+                    <Link to="/events" className="pr_btn_primary white">Browse events</Link>
                 </div>
             </section>
 

@@ -13,8 +13,10 @@ bookingRouter.delete("/lock/:lockId", bookingController.delete.releaseLock);
 
 // Booking + demo payment
 bookingRouter.post("/", bookingController.post.createBooking);
+bookingRouter.post("/general", bookingController.post.createGaBooking); // general admission (ticket type + qty)
 bookingRouter.get("/", bookingController.get.listMyBookings);
 bookingRouter.get("/:id", bookingController.get.getBooking);
+bookingRouter.get("/:id/ticket", bookingController.get.downloadTicket); // PDF e-ticket
 bookingRouter.post("/:id/pay", bookingController.post.processDemoPayment); // demo gateway: { success: true|false }
 bookingRouter.post("/:id/cancel", bookingController.post.cancelBooking);
 

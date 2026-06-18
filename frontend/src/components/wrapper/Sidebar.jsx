@@ -14,8 +14,8 @@ const organizerMenu = [
     { id: "dashboard", title: "Dashboard", icon: svg.dashboard, href: "/organizer/dashboard" },
     { id: "events", title: "My Events", icon: svg.report, href: "/organizer/events" },
     { id: "venues", title: "Venues", icon: svg.report, href: "/organizer/venues" },
+    { id: "scan", title: "Scan Tickets", icon: svg.ticket, href: "/organizer/scan" },
     { id: "settings", title: "Settings", icon: svg.settings, href: "/user/settings" },
-    { id: "help", title: "Need Help", icon: svg.shield, href: "/user/help" },
 ];
 
 const attendeeMenu = [
@@ -23,13 +23,12 @@ const attendeeMenu = [
     { id: "dashboard", title: "Dashboard", icon: svg.report, href: "/user/dashboard" },
     { id: "bookings", title: "My Bookings", icon: svg.report, href: "/user/bookings" },
     { id: "settings", title: "Settings", icon: svg.settings, href: "/user/settings" },
-    { id: "help", title: "Need Help", icon: svg.shield, href: "/user/help" },
 ];
 
 const Sidebar = ({ isOpen, toggle, role = "user" }) => {
     const [openGroups, setOpenGroups] = useState({});
     const { user } = useUserStore();
-
+console.log(user)
     const filteredMenu = useMemo(() => {
         if (role === "admin") return adminMenu;
         if (role === "organizer") return organizerMenu;
