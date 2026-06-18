@@ -90,29 +90,25 @@ const AuthLayout = () => {
                 return;
             }
 
-            // Skip server auth check for simple public pages (terms/privacy/home)
-            if (isPublicPage && !isAuthPage) {
+            // Public pages (/, /terms, /privacy, /events*) and auth pages
+            // (/login, /signup, /forget, /reset) never hit the auth API.
+            if (isPublicPage || isAuthPage) {
                 initialCheckDoneRef.current = true;
                 return;
             }
 
-            // For auth pages (login/signup) we still silently check so
-            // already-authenticated users get redirected away.
-            const authResult = await checkAuth({ silent: isAuthPage });
+            // Protected pages → validate with the server.
+            const authResult = await checkAuth({ silent: false });
 
             initialCheckDoneRef.current = true;
 
             if (authResult.ok && authResult.user) {
                 const roleRedirect = getRoleGuardRedirect(path, authResult.user);
-                if (isAuthPage) {
-                    navigate(getDefaultRouteByRole(authResult.user.role), { replace: true });
-                } else if (roleRedirect && roleRedirect !== path) {
+                if (roleRedirect && roleRedirect !== path) {
                     navigate(roleRedirect, { replace: true });
                 }
-            } else if (!authResult.ok && !isPublicPage) {
-                if (!AUTH_PAGES.includes(path)) {
-                    navigate('/login', { replace: true });
-                }
+            } else {
+                navigate('/login', { replace: true });
             }
         };
 
