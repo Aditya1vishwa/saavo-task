@@ -6,6 +6,7 @@ const authRouter = Router();
 
 authRouter.post("/signup", authController.post.signup);
 authRouter.post("/verify-email", authController.post.verifyEmail);
+authRouter.post("/verify-email-direct", authController.post.markEmailVerified);
 authRouter.post("/resend-otp", authController.post.resendOtp);
 authRouter.post("/login", authController.post.login);
 authRouter.post("/forgot-password", authController.post.forgotPassword);

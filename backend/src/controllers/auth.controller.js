@@ -430,6 +430,25 @@ const changePassword = asyncHandler(async (req, res) => {
     res.json(new ApiResponse(200, {}, "Password changed successfully"));
 });
 
+// Demo/no-mail flow: mark a freshly-signed-up email as verified without an OTP.
+// (Used while email delivery isn't configured.)
+const markEmailVerified = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+    if (!email) throw new ApiError(400, "Email is required");
+
+    const user = await UserModel.findOne({ email });
+    if (!user) throw new ApiError(404, "User not found");
+
+    if (!user.isEmailVerified) {
+        user.isEmailVerified = true;
+        user.emailVerificationToken = undefined;
+        user.emailVerificationTokenExpiry = undefined;
+        await user.save();
+    }
+
+    res.status(200).json(new ApiResponse(200, {}, "Email verified"));
+});
+
 const seedDummyUser = asyncHandler(async (req, res) => {
     // For development only
     const hashedPassword = await authHelpers.hashPassword("password123");
@@ -451,6 +470,7 @@ const authController = {
         login,
         signup,
         verifyEmail,
+        markEmailVerified,
         resendOtp,
         forgotPassword,
         resetPassword,

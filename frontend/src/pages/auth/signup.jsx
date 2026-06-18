@@ -144,6 +144,28 @@ const Signup = () => {
         }
     };
 
+    // Demo flow: verify without an OTP (email delivery isn't configured yet).
+    const handleVerifyWithoutOtp = async () => {
+        setOtpLoading(true);
+        try {
+            const response = await apiCall({
+                url: '/auth/verify-email-direct',
+                method: 'POST',
+                data: { email: formData.email },
+            });
+            if (response.success) {
+                toast.success('Email verified. Please login.');
+                navigate('/login');
+            } else {
+                toast.error(response.message || 'Verification failed');
+            }
+        } catch (error) {
+            toast.error(error.message || 'Verification failed');
+        } finally {
+            setOtpLoading(false);
+        }
+    };
+
     const handleResendOtp = async () => {
         if (resendCooldown > 0) return;
 
@@ -287,7 +309,7 @@ const Signup = () => {
                             </form>
                         ) : (
                             <form onSubmit={handleVerifyOtp} className="pr_auth_form">
-                                <div className="pr_form_group" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '24px' }}>
+                                <div className="pr_form_group" style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '24px',flexDirection: 'row' }}>
                                     {otp.map((digit, index) => (
                                         <input
                                             key={index}
@@ -302,9 +324,18 @@ const Signup = () => {
                                         />
                                     ))}
                                 </div>
-
                                 <button type="submit" className="pr_btn_primary pr_full_width" disabled={otpLoading}>
                                     {otpLoading ? 'Verifying...' : 'Verify Email'}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="pr_btn_secondary pr_full_width"
+                                    style={{ marginTop: '10px' }}
+                                    onClick={handleVerifyWithoutOtp}
+                                    disabled={otpLoading}
+                                >
+                                    Verify without OTP
                                 </button>
 
                                 <div style={{ textAlign: 'center', marginTop: '16px' }}>
