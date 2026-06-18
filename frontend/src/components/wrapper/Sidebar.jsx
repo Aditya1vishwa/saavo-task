@@ -6,7 +6,7 @@ import useUserStore from "../../store/useUserStore";
 const adminMenu = [
     { id: "dashboard", title: "Dashboard", icon: svg.dashboard, href: "/admin/dashboard" },
     { id: "users", title: "Users", icon: svg.users, href: "/admin/users" },
-    { id: "key-values", title: "Key Values", icon: svg.settings, href: "/admin/key-values" },
+    // { id: "key-values", title: "Key Values", icon: svg.settings, href: "/admin/key-values" },
     { id: "helpdesk", title: "Help Desk", icon: svg.shield, href: "/admin/helpdesk" },
 ];
 

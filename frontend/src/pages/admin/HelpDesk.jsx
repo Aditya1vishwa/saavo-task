@@ -1,7 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import CustomTable from "../../components/common/CustomTable";
 import Modal from "../../components/Modal";
+import SelectInput from "../../components/common/SelectInput";
 import { apiCall } from "../../apiConfig/apiCall";
+
+const STATUS_OPTIONS = [
+    { value: "", label: "All status" },
+    { value: "open", label: "Open" },
+    { value: "answered", label: "Answered" },
+    { value: "closed", label: "Closed" },
+];
 
 const HelpDesk = () => {
     const [items, setItems] = useState([]);
@@ -74,12 +82,14 @@ const HelpDesk = () => {
                     <h2>Help Desk</h2>
                     <p>Review and answer user support queries.</p>
                 </div>
-                <select className="pr_select" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                    <option value="">All status</option>
-                    <option value="open">Open</option>
-                    <option value="answered">Answered</option>
-                    <option value="closed">Closed</option>
-                </select>
+                <div style={{ minWidth: 200 }}>
+                    <SelectInput
+                        options={STATUS_OPTIONS}
+                        value={statusFilter}
+                        onChange={(v) => { setStatusFilter(v); setPage(1); }}
+                        placeholder="All status"
+                    />
+                </div>
             </div>
 
             <CustomTable data={items} columns={columns} currentPage={page} totalPages={totalPages} onPageChange={setPage} />
